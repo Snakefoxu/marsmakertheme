@@ -1,0 +1,113 @@
+# ============================================================================
+# EXCLUSIÓN ESTRICTA DE TEMAS Y RECURSOS PESADOS
+# ============================================================================
+resources/themes/
+resources/extracted_themes/
+resources/Themes_PHOTO/
+resources/Themes_TURZX/
+resources/Themes_PYTHON/
+resources/Themes_SMTHEME/
+resources/SMTHEME EXTRAIDO/
+resources/PHOTOS EXTRAIDO/
+resources/FFmpeg/
+resources/Programme/
+resources/ThemeScheme/
+# resources/Previews/ (Mantener excluido si es caché, preguntar si dudas)
+# resources/Videos/ (INCLUIDO: Plantillas del proyecto)
+# resources/GIFs/ (INCLUIDO: Plantillas del proyecto)
+resources/ThemesPhoto/
+resources/Projects/
+
+# Excluir Archivos de Medios y Binarios
+*.photo
+*.smtheme
+*.zip
+*.7z
+*.rar
+*.mp4
+*.avi
+*.wmv
+*.mov
+*.gif
+*.png
+*.jpg
+*.jpeg
+*.bmp
+*.exe
+*.dll
+*.pdb
+
+# Excepciones para Plantillas y Código
+!src/**/*.cs
+!src/**/*.xaml
+!src/**/*.xml
+!src/**/*.json
+!src/**/*.csproj
+!src/**/*.sln
+!resources/Videos/*.mp4
+!resources/Videos/*.avi
+!resources/Videos/*.mov
+!resources/GIFs/*.gif
+
+# Excepciones de Assets
+!assets/branding/*
+
+# ============================================================================
+# Carpetas de investigación y estudio
+# ============================================================================
+INVESTIGACION/
+PROYECTO_ESTUDIO/
+EDITOR PANTALLAS turzx/
+experiments/
+LEGACY/
+archive/
+hf_soeyi_themes/
+hf_upload_new/
+temp_hf_repo/
+docs/archivo/
+docs/referencia/
+docs/AUDIT_REPORT.md
+docs/MIGRATION_PLAN_CSHARP.md
+docs/README.md
+docs/guias/GUIA_DNSPY_SOEYI.md
+KNOWLEDGE_BASE.md
+ROADMAP.md
+TODO.md
+build/README.md
+ROL.md
+RULES.MD
+.backup_*/
+
+# ============================================================================
+# System AI Folders
+# ============================================================================
+ai/
+AI/
+.gemini/
+.agent/
+
+# ============================================================================
+# Build & Cache
+# ============================================================================
+bin/
+obj/
+publish/
+release/
+instaladores/
+dist/
+temp/
+*.tmp
+*.log
+*_EXTRACTED/
+test_extract/
+test_photo_extract/
+backups/
+.vs/
+*.suo
+*.user
+Thumbs.db
+desktop.ini
+*_progress.txt
+missing_ids.txt
+ids_list.txt
+.fake

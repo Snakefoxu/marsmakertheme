@@ -1,0 +1,289 @@
+<UserControl x:Class="SnakeMarsTheme.Views.DownloaderView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SnakeMarsTheme.ViewModels">
+    
+    <UserControl.DataContext>
+        <vm:DownloaderViewModel/>
+    </UserControl.DataContext>
+    
+    <Grid Margin="10">
+        <!-- Tab Control -->
+        <TabControl Background="{StaticResource BackgroundDarkBrush}" BorderThickness="0">
+            
+            <!-- ===== TAB 1: Descargar Temas ===== -->
+            <TabItem Header="Descargar Temas (191 disponibles)" FontSize="12" FontWeight="SemiBold">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="400"/>
+                        <ColumnDefinition Width="370"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Left: Filter + Theme List -->
+                    <Grid Grid.Column="0" Margin="0,0,10,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Filter Controls -->
+                        <Border Grid.Row="0" Background="{StaticResource BackgroundMediumBrush}" CornerRadius="4" Padding="10" Margin="0,0,0,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Filtrar por resolución:" VerticalAlignment="Center" 
+                                           Foreground="{StaticResource TextPrimaryBrush}" FontSize="12" Margin="0,0,10,0"/>
+                                <ComboBox Grid.Column="1" ItemsSource="{Binding Resolutions}" 
+                                          SelectedItem="{Binding SelectedResolution}"
+                                          FontSize="11" Padding="8,5"/>
+                            </Grid>
+                        </Border>
+                        
+                        <!-- Header with Load + Count -->
+                        <Grid Grid.Row="1" Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="Cargar Catálogo" Command="{Binding LoadThemesCommand}" 
+                                    Padding="12,6" Background="{StaticResource AccentCyanBrush}" Foreground="#000000" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="15,0,0,0"
+                                       Foreground="{StaticResource AccentCyanBrush}" FontWeight="Bold">
+                                <Run Text="{Binding TotalThemes}"/>
+                                <Run Text=" temas disponibles"/>
+                            </TextBlock>
+                        </Grid>
+                        
+                        <!-- Theme List -->
+                        <Border Grid.Row="2" Background="{StaticResource BackgroundMediumBrush}" CornerRadius="4">
+                            <ListBox ItemsSource="{Binding AvailableThemes}" 
+                                     SelectedItem="{Binding SelectedTheme}"
+                                     Background="Transparent" BorderThickness="0"
+                                     FontFamily="Consolas" FontSize="11"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Foreground="{StaticResource TextPrimaryBrush}" Margin="3,2">
+                                            <Run Text="{Binding TypeIcon, Mode=OneWay}" FontFamily="Segoe UI Emoji"/> 
+                                            <Run Text=" [" Foreground="{StaticResource AccentCyanBrush}"/>
+                                            <Run Text="{Binding Resolution, Mode=OneWay}" Foreground="{StaticResource AccentCyanBrush}"/>
+                                            <Run Text="] " Foreground="{StaticResource AccentCyanBrush}"/>
+                                            <Run Text="{Binding Name, Mode=OneWay}"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                        
+                        <!-- Status Bar -->
+                        <Border Grid.Row="3" Background="{StaticResource BackgroundLightBrush}" CornerRadius="4" 
+                                Margin="0,8,0,0" Padding="10">
+                            <StackPanel>
+                                <ProgressBar Height="8" Value="{Binding DownloadProgress}" Maximum="100"
+                                             Background="{StaticResource BackgroundDarkBrush}"
+                                             Foreground="{StaticResource AccentGreenBrush}"
+                                             Visibility="{Binding IsDownloading, Converter={StaticResource BoolToVis}}"/>
+                                <TextBlock Text="{Binding StatusText}" Foreground="{StaticResource AccentGreenBrush}" 
+                                           FontWeight="Bold" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    
+                    <!-- Center: Preview + Info + Actions -->
+                    <Grid Grid.Column="1" Margin="0,0,10,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="280"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Theme Preview Image -->
+                        <Border Grid.Row="0" Background="{StaticResource BackgroundMediumBrush}" 
+                                CornerRadius="6" Padding="5">
+                            <Grid>
+                                <TextBlock Text="Sin preview" Foreground="{StaticResource TextSecondaryBrush}" 
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Image Source="{Binding ThemePreviewImage}" Stretch="Uniform"/>
+                            </Grid>
+                        </Border>
+                        
+                        <!-- Theme Details -->
+                        <Border Grid.Row="1" Background="{StaticResource BackgroundMediumBrush}" CornerRadius="6" Padding="10" Margin="0,8,0,0">
+                            <StackPanel>
+                                <TextBlock Text="{Binding SelectedThemeName, FallbackValue='Selecciona un tema'}" 
+                                           Foreground="{StaticResource AccentCyanBrush}" FontSize="13" FontWeight="Bold"/>
+                                <TextBlock Margin="0,5,0,0" Foreground="{StaticResource TextPrimaryBrush}" FontFamily="Consolas" FontSize="11">
+                                    <Run Text="ID: "/><Run Text="{Binding SelectedThemeId, Mode=OneWay}"/>
+                                    <LineBreak/>
+                                    <Run Text="Resolución: "/><Run Text="{Binding SelectedThemeResolution, Mode=OneWay}"/>
+                                    <LineBreak/>
+                                    <Run Text="Tipo: "/><Run Text="{Binding SelectedThemeType, Mode=OneWay}"/>
+                                    <Run Text=" | Fuente: "/><Run Text="{Binding SelectedThemeSource, Mode=OneWay}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Actions Panel -->
+                        <Border Grid.Row="2" Background="{StaticResource BackgroundMediumBrush}" CornerRadius="6" Padding="10" Margin="0,8,0,0">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <!-- PASO 1: Descargar -->
+                                    <TextBlock Text="PASO 1: DESCARGAR" FontWeight="Bold" Foreground="{StaticResource AccentCyanBrush}" FontSize="10"/>
+                                    <Grid Margin="0,6,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <!-- Only show SOEYI button if source is NOT custom/python/turzx -->
+                                        <!-- Simplified logic: Hide if smtheme -->
+                                        <Button Grid.Column="0" Content="SOEYI (oficial)" Command="{Binding DownloadFromSOEYICommand}" 
+                                                Margin="0,0,4,0" Background="#009900" Foreground="White" Padding="0,8" FontWeight="Bold"/>
+                                        
+                                        <Button Grid.Column="1" Content="Descargar (Nube)" Command="{Binding DownloadSelectedCommand}" 
+                                                Margin="4,0,0,0" Background="#FF9900" Foreground="White" Padding="0,8"/>
+                                    </Grid>
+                                    
+                                    <!-- PASO 2: Instalar -->
+                                    <TextBlock Text="PASO 2: INSTALAR" FontWeight="Bold" Foreground="{StaticResource AccentCyanBrush}" FontSize="10" Margin="0,12,0,0"/>
+                                    <Grid Margin="0,6,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <!-- For smtheme, we have a unified install button "ExtractSelected" acts as Install -->
+                                        <Button Grid.Column="0" Content="Instalar / Extraer" Command="{Binding ExtractSelectedCommand}" 
+                                                Margin="0,0,4,0" Background="#0066B8" Foreground="White" Padding="0,8" Grid.ColumnSpan="2"/>
+                                    </Grid>
+                                    
+                                    <!-- Reiniciar -->
+                                    <Button Content="REINICIAR APP SOEYI (Aplicar cambios)" Command="{Binding RestartSOEYICommand}"
+                                            Margin="0,10,0,0" Background="#800000" Foreground="White" Padding="0,8" FontWeight="Bold"/>
+                                    <Button Content="REINICIAR MARS GAMING" Command="{Binding RestartMarsCommand}"
+                                            Margin="0,6,0,0" Background="#B45000" Foreground="White" Padding="0,8" FontWeight="Bold"/>
+                                    
+                                    <!-- PASO 3: Editar -->
+                                    <TextBlock Text="PASO 3: EDITAR (opcional)" FontWeight="Bold" Foreground="#CC33FF" FontSize="10" Margin="0,12,0,0"/>
+                                    <Button Content="EXTRAER Y EDITAR TEMA" Command="{Binding ExtractAndEditCommand}"
+                                            Margin="0,6,0,0" Background="#9933CC" Foreground="White" Padding="0,10" FontWeight="Bold"/>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                    
+                    <!-- Right: Catalog Info -->
+                    <Grid Grid.Column="2">
+                        <Border Background="{StaticResource BackgroundMediumBrush}" CornerRadius="6" Padding="15">
+                            <StackPanel>
+                                <TextBlock Text="Información del Catálogo" FontSize="14" FontWeight="Bold" 
+                                           Foreground="{StaticResource AccentCyanBrush}" Margin="0,0,0,15"/>
+                                
+                                <TextBlock Foreground="{StaticResource TextPrimaryBrush}" FontSize="12" LineHeight="22">
+                                    <Run Text="Total temas: " FontWeight="Bold"/><Run Text="{Binding CatalogTotalThemes}"/>
+                                    <LineBreak/>
+                                    <Run Text="Resoluciones: " FontWeight="Bold"/><Run Text="{Binding CatalogResolutions}"/>
+                                    <LineBreak/>
+                                    <Run Text="Tamaño total: " FontWeight="Bold"/><Run Text="{Binding CatalogTotalSize}"/>
+                                </TextBlock>
+                                
+                                <TextBlock Foreground="{StaticResource TextPrimaryBrush}" FontSize="12" LineHeight="22" Margin="0,15,0,0">
+                                    <Run Text="Fuente de descarga:" FontWeight="Bold"/>
+                                    <LineBreak/>
+                                    <Run Text="soeyiphoto.com (oficial)" Foreground="{StaticResource AccentGreenBrush}"/>
+                                </TextBlock>
+                                
+                                <TextBlock Foreground="{StaticResource TextPrimaryBrush}" FontSize="12" LineHeight="22" Margin="0,15,0,0">
+                                    <Run Text="Formato: " FontWeight="Bold"/><Run Text=".photo"/>
+                                    <LineBreak/>
+                                    <Run Text="(7z encriptado)" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </TextBlock>
+                                
+                                <TextBlock Foreground="{StaticResource TextPrimaryBrush}" FontSize="12" LineHeight="22" Margin="0,15,0,0">
+                                    <Run Text="Compatible con:" FontWeight="Bold"/>
+                                    <LineBreak/>
+                                    <Run Text="- SOEYI"/>
+                                    <LineBreak/>
+                                    <Run Text="- Mars Gaming VMAX"/>
+                                </TextBlock>
+                                
+                                <!-- 7-Zip Status -->
+                                <Border Background="{StaticResource BackgroundLightBrush}" CornerRadius="4" Padding="8" Margin="0,20,0,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="7-Zip: " Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBlock Text="✓ Instalado" Foreground="{StaticResource AccentGreenBrush}" 
+                                                   Visibility="{Binding Is7ZipAvailable, Converter={StaticResource BoolToVis}}"/>
+                                        <TextBlock Text="✗ No encontrado" Foreground="{StaticResource AccentRedBrush}" 
+                                                   Visibility="{Binding Is7ZipAvailable, Converter={StaticResource InverseBoolToVis}}"/>
+                                    </StackPanel>
+                                </Border>
+                                
+                                <TextBlock Text="Cargando..." Foreground="{StaticResource AccentOrangeBrush}" Margin="0,15,0,0"
+                                           Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            
+            <!-- ===== TAB 2: Descarga Masiva ===== -->
+            <TabItem Header="Descarga Masiva (HuggingFace)" FontSize="12" FontWeight="SemiBold">
+                <Grid Margin="10">
+                    <Border Background="{StaticResource BackgroundMediumBrush}" CornerRadius="8" 
+                            Padding="30" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,30,0,0">
+                        <StackPanel Width="550">
+                            <TextBlock Text="Descarga Masiva desde HuggingFace" FontSize="18" FontWeight="Bold"
+                                       Foreground="{StaticResource AccentCyanBrush}" Margin="0,0,0,20"/>
+                            
+                            <TextBlock Foreground="{StaticResource TextPrimaryBrush}" FontSize="13" LineHeight="24" TextWrapping="Wrap">
+                                <Run Text="Esta opción descarga TODOS los temas de una vez"/>
+                                <LineBreak/>
+                                <Run Text="desde nuestro repositorio en HuggingFace."/>
+                                <LineBreak/><LineBreak/>
+                                <Run Text="Dataset: " FontWeight="Bold"/><Run Text="snakefoxu/soeyi-themes" Foreground="{StaticResource AccentCyanBrush}"/>
+                                <LineBreak/>
+                                <Run Text="Tamaño total: " FontWeight="Bold"/><Run Text="1.77 GB" Foreground="{StaticResource AccentOrangeBrush}"/>
+                                <LineBreak/>
+                                <Run Text="462 temas (191 .photo + 271 .smtheme)"/>
+                                <LineBreak/><LineBreak/>
+                                <Run Text="Los temas se guardarán en:"/>
+                                <LineBreak/>
+                                <Run Text="resources/themes/" FontFamily="Consolas" Foreground="{StaticResource AccentCyanBrush}"/>
+                            </TextBlock>
+                            
+                            <!-- Download All Button -->
+                            <Button Content="Descargar TODOS los temas (1.77 GB)" Command="{Binding DownloadAllThemesCommand}"
+                                    Margin="0,30,0,0" Padding="20,15" FontSize="14" FontWeight="Bold"
+                                    Background="{StaticResource AccentGreenBrush}" Foreground="#000000"/>
+                            
+                            <!-- Download by IDs -->
+                            <TextBlock Text="O introduce IDs específicos (separados por coma):" 
+                                       Foreground="{StaticResource TextPrimaryBrush}" Margin="0,30,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Text="{Binding ThemeIdsToDownload, UpdateSourceTrigger=PropertyChanged}"
+                                         Padding="10,8" FontSize="12" Margin="0,0,10,0"/>
+                                <Button Grid.Column="1" Content="Descargar IDs" Command="{Binding DownloadByIdsCommand}"
+                                        Padding="15,8" Background="{StaticResource AccentCyanBrush}" Foreground="#000000"/>
+                            </Grid>
+                            
+                            <!-- Progress -->
+                            <ProgressBar Height="20" Margin="0,25,0,0" Value="{Binding BulkDownloadProgress}" Maximum="100"
+                                         Background="{StaticResource BackgroundDarkBrush}"
+                                         Foreground="{StaticResource AccentGreenBrush}"/>
+                            <TextBlock Text="{Binding BulkDownloadStatus}" Foreground="{StaticResource TextSecondaryBrush}" 
+                                       Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+            
+        </TabControl>
+    </Grid>
+</UserControl>
