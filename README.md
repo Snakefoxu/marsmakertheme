@@ -1,57 +1,56 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Snakefoxu/marsmakertheme/main/assets/branding/github_banner.png" alt="SnakeMarsTheme Banner" height="350">
+  <img src="https://raw.githubusercontent.com/Snakefoxu/marsmakertheme/main/assets/branding/github_banner.png" alt="SnakeMarsTheme - Gestor de Temas para Pantallas LCD Mars Gaming y SOEYI" height="350">
 </p>
 
-# SnakeMarsTheme
+# SnakeMarsTheme - El Gestor Definitivo para Mars Gaming & SOEYI
 
-> **El Gestor Inteligente para Pantallas Mars Gaming VMAX y SOEYI**
-> *La única suite todo-en-uno para crear, convertir y gestionar temas*
+> **La Suite Inteligente para Pantallas Mars Gaming VMAX, SOEYI y Displays IPS Turzx**
+> *La única herramienta todo-en-uno para crear, convertir y personalizar temas para la pantalla LCD de tu caja de PC.*
 
-[![Versión](https://img.shields.io/badge/version-1.0-blue)]()
-[![Plataforma](https://img.shields.io/badge/platform-Windows-lightgrey)]()
+[![Versión](https://img.shields.io/badge/versión-1.0-blue)](https://github.com/Snakefoxu/marsmakertheme/releases)
+[![Plataforma](https://img.shields.io/badge/plataforma-Windows-lightgrey)]()
 [![Framework](https://img.shields.io/badge/.NET-8.0-purple)]()
-[![HuggingFace](https://img.shields.io/badge/HuggingFace-462_temas-orange)](https://huggingface.co/datasets/snakefoxu/soeyi-themes)
+[![Temas en HuggingFace](https://img.shields.io/badge/HuggingFace-462_temas-orange)](https://huggingface.co/datasets/snakefoxu/soeyi-themes)
 
 ---
 
-## 🔥 Características Principales
+## 🔥 Características Principales para Personalización de PC
 
-### 🎨 Editor Visual
-- **Drag & Drop**: Diseña temas arrastrando widgets al canvas
-- **75+ Widgets**: CPU, GPU, RAM, Red, Clima, Ventiladores...
-- **Preview en Tiempo Real**: Ve el Setting.txt mientras editas
+### 🎨 Editor Visual de Temas (WYSIWYG)
+- **Interfaz Drag & Drop**: Diseña temas personalizados fácilmente para tus pantallas USB IPS genéricas de 3.5" o 5".
+- **75+ Widgets en Vivo**: Monitoriza Temperatura CPU, Uso de GPU, Velocidad RAM, Red, Clima, Ventiladores y más.
+- **Vista Previa en Tiempo Real**: Visualiza exactamente cómo quedará tu tema en tu dispositivo Mars Gaming o SOEYI antes de exportar.
 
-### 📦 Formatos Soportados
-- **`.smtheme`**: Formato abierto (ZIP sin contraseña)
-- **`.photo`**: Formato SOEYI (7z con password)
-- **JSON**: Instalación directa en Mars Gaming
+### 📦 Formatos de Tema Soportados
+- **`.smtheme`**: Estándar Abierto (ZIP sin contraseña) para compartir fácilmente.
+- **`.photo`**: Soporte para formato legado SOEYI (Autodesencriptado de temas chinos).
+- **Configuración JSON**: Soporte de instalación directa para el software de Mars Gaming.
 
-### 📥 Librería en la Nube
-- **462 temas** disponibles (1.77 GB)
-- **Descarga masiva** desde HuggingFace
-- **Filtros** por resolución (Horizontal/Vertical/AIO)
+### 📥 Librería de Temas en la Nube
+- **462+ Temas Gratuitos**: Accede a una base de datos masiva de temas de la comunidad (1.77 GB).
+- **Descarga por Lotes**: Descarga masiva en un clic desde HuggingFace.
+- **Filtros Inteligentes**: Encuentra temas por resolución (Horizontal 320x240, Vertical 480x800, pantallas AIO de refrigeración líquida).
 
-### 🎬 Animación
-- **GIF → Frames**: Convierte GIFs a temas animados
-- **Video → Frames**: Extrae frames de MP4/AVI
-- **Control de FPS**: Hasta 60 frames
+### 🎬 Herramientas de Animación Avanzadas
+- **GIF a Tema**: Convierte instantáneamente GIFs genéricos en temas de hardware compatibles.
+- **Video a Frames**: Extrae frames de alta calidad de MP4/AVI para una reproducción fluida.
+- **Control de FPS**: Optimiza el rendimiento con soporte de reproducción de hasta 60fps.
 
 ---
 
-## 🛠️ Instalación
+## 🛠️ Instalación y Puesta en Marcha
 
-### Requisitos
-- Windows 10/11
-- .NET 8.0 Runtime
+### Requisitos del Sistema
+- Windows 10 / 11
+- .NET 8.0 Runtime (necesario para ejecutar la aplicación)
 
-### Ejecutar
+### Cómo Ejecutar
+1. Descarga la última versión desde [Releases](https://github.com/Snakefoxu/marsmakertheme/releases).
+2. Descomprime el archivo.
+3. Ejecuta `SnakeMarsTheme.exe`.
+
 ```bash
-# Descarga la última release y ejecuta:
-SnakeMarsTheme.exe
-```
-
-### Desarrollo
-```bash
+# O si prefieres compilarlo tú mismo:
 git clone https://github.com/Snakefoxu/marsmakertheme.git
 cd marsmakertheme/src/SnakeMarsTheme
 dotnet run
@@ -59,44 +58,47 @@ dotnet run
 
 ---
 
-## 📂 Estructura del Proyecto
+## 📂 Estructura del Repositorio
 
 ```
 SnakeMarsTheme/
-├── src/SnakeMarsTheme/    # App Principal (WPF .NET 8)
-├── resources/             # Assets locales
-├── docs/                  # Documentación técnica
-├── legacy/                # Scripts PowerShell antiguos
-├── ROADMAP.md             # Plan de desarrollo
-└── CHANGELOG.md           # Historial de cambios
+├── src/SnakeMarsTheme/    # Aplicación Principal (WPF .NET 8)
+├── resources/             # Assets y recursos locales
+├── docs/                  # Documentación técnica y web
+├── legacy/                # Scripts PowerShell antiguos y utilidades
+├── ROADMAP.md             # Plan de desarrollo futuro
+└── CHANGELOG.md           # Historial de cambios y versiones
 ```
 
 ---
 
-## 📚 Documentación
+## 📚 Documentación y Guías
 
 | Documento | Descripción |
 |-----------|-------------|
-| [ROADMAP.md](ROADMAP.md) | Plan de desarrollo y funcionalidades |
-| [docs/README.md](docs/README.md) | Índice de documentación técnica |
-| [CHANGELOG.md](CHANGELOG.md) | Historial de cambios |
+| [ROADMAP.md](ROADMAP.md) | Funcionalidades planeadas y futuro del proyecto |
+| [docs/README.md](docs/README.md) | Índice completo de documentación técnica |
+| [CHANGELOG.md](CHANGELOG.md) | Registro de cambios y actualizaciones |
 
 ---
 
-## 🔑 Información Técnica
+## 🔑 Información Técnica para Enthusiastas
 
-- **Password .photo**: `vmax2025`
-- **HuggingFace**: [snakefoxu/soeyi-themes](https://huggingface.co/datasets/snakefoxu/soeyi-themes)
-- **Resoluciones**: 320x240, 360x960, 462x1920, etc.
-
----
-
-## 🤝 Créditos
-
-Desarrollado con ❤️ por **SnakeFoxu**
-
-*Especial agradecimiento a la comunidad de SOEYI y TURZX por la inspiración.*
+- **Contraseña Archivos .photo**: `vmax2025` (Utilizada en temas encriptados originales)
+- **Repositorio de Temas**: [snakefoxu/soeyi-themes](https://huggingface.co/datasets/snakefoxu/soeyi-themes)
+- **Resoluciones Soportadas**:
+  - 320x240 (Horizontal Estándar)
+  - 480x800 (Vertical Alta Resolución)
+  - 360x960 (Displays Tira/Chasis)
 
 ---
 
-**Licencia**: MIT
+## 🤝 Créditos y Atribución
+
+Desarrollado con ❤️ por **SnakeFoxu** para la comunidad de modding de PC.
+
+*Agradecimiento especial a las comunidades de SOEYI y TURZX por la investigación e inspiración.*
+
+---
+
+**Licencia**: MIT - Código Abierto y Gratuito.
