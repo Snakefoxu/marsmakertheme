@@ -13,8 +13,8 @@ AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
-; Remove the following line to run in administrative install mode (install for all users.)
-PrivilegesRequired=lowest
+; Require admin privileges for Program Files installation
+PrivilegesRequired=admin
 OutputDir={#OutputPath}
 OutputBaseFilename=SnakeMarsTheme_Setup_v{#MyAppVersion}
 Compression=lzma
