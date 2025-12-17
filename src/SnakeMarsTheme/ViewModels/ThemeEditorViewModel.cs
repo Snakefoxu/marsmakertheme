@@ -267,9 +267,16 @@ public partial class ThemeEditorViewModel : ObservableObject
                     };
 
                     // Try detecting preview
-                    if (Directory.Exists(previewsPath))
+                    // 1. Look in cached "thumbnails" subfolder (New behavior)
+                    var nameNoExt = Path.GetFileNameWithoutExtension(f);
+                    var thumbPath = Path.Combine(Path.GetDirectoryName(f) ?? "", "thumbnails", nameNoExt + ".png");
+                    
+                    if (File.Exists(thumbPath))
                     {
-                        var nameNoExt = Path.GetFileNameWithoutExtension(f);
+                        item.PreviewPath = thumbPath;
+                    }
+                    else if (Directory.Exists(previewsPath))
+                    {
                         var pngPreview = Path.Combine(previewsPath, nameNoExt + ".png");
                         if (File.Exists(pngPreview))
                         {

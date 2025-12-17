@@ -9,14 +9,11 @@ Add-Type -AssemblyName System.Drawing
 
 $repoRoot = "d:\REPOS_GITHUB\SnakeMarsTheme"
 $gifDir = Join-Path $repoRoot "resources\GIFs"
-$previewDir = Join-Path $repoRoot "resources\Previews"
+$previewDir = Join-Path $gifDir "thumbnails"
 
-# 1. Clean existing previews
-Write-Host "Cleaning Previews folder..." -ForegroundColor Yellow
-if (Test-Path $previewDir) {
-    Remove-Item "$previewDir\*.png" -Force -ErrorAction SilentlyContinue
-}
-else {
+# 1. Prepare thumbnails folder
+Write-Host "Checking thumbnails folder..." -ForegroundColor Yellow
+if (-not (Test-Path $previewDir)) {
     New-Item -ItemType Directory -Path $previewDir -Force | Out-Null
 }
 

@@ -7,34 +7,39 @@
 > **La Suite Inteligente para Pantallas Mars Gaming VMAX, SOEYI y Displays IPS Turzx**
 > *La única herramienta todo-en-uno para crear, convertir y personalizar temas para la pantalla LCD de tu caja de PC.*
 
-[![Versión](https://img.shields.io/badge/versión-1.0-blue)](https://github.com/Snakefoxu/marsmakertheme/releases)
+[![Versión](https://img.shields.io/badge/versión-1.1.0-blue)](https://github.com/Snakefoxu/marsmakertheme/releases)
 [![Plataforma](https://img.shields.io/badge/plataforma-Windows-lightgrey)]()
 [![Framework](https://img.shields.io/badge/.NET-8.0-purple)]()
 [![Temas en HuggingFace](https://img.shields.io/badge/HuggingFace-462_temas-orange)](https://huggingface.co/datasets/snakefoxu/soeyi-themes)
 
 ---
 
-## 🔥 Características Principales para Personalización de PC
+## 📖 [VER MANUAL DE USUARIO (Instrucciones Completas)](USER_MANUAL.md)
+
+---
+
+## 🔥 Características Principales (v1.1.0)
 
 ### 🎨 Editor Visual de Temas (WYSIWYG)
 - **Interfaz Drag & Drop**: Diseña temas personalizados fácilmente para tus pantallas USB IPS genéricas de 3.5" o 5".
-- **75+ Widgets en Vivo**: Monitoriza Temperatura CPU, Uso de GPU, Velocidad RAM, Red, Clima, Ventiladores y más.
-- **Vista Previa en Tiempo Real**: Visualiza exactamente cómo quedará tu tema en tu dispositivo Mars Gaming o SOEYI antes de exportar.
+- **Widget Arsenal**: Monitoriza Temperatura CPU, Uso de GPU, Velocidad RAM, Red, Clima, Ventiladores y más (75+ widgets).
+- **Control Total de Medios**: 
+    - **Rotación**: Rota fondos 90°/180°/270° al instante.
+    - **Formatos**: Soporte para Imagen, GIF y Video (.mp4).
+- **Deshacer/Rehacer**: Sistema robusto para editar sin miedo.
 
-### 📦 Formatos de Tema Soportados
-- **`.smtheme`**: Estándar Abierto (ZIP sin contraseña) para compartir fácilmente.
-- **`.photo`**: Soporte para formato legado SOEYI (Autodesencriptado de temas chinos).
-- **Configuración JSON**: Soporte de instalación directa para el software de Mars Gaming.
+### 🧙‍♂️ Asistentes Inteligentes
+- **Wizard de Inicio**: Crea temas base en 3 pasos (Pantalla -> Orientación -> Estilo).
+- **Importador Inteligente**: Detecta automáticamente si importas un archivo `.smtheme` o `.photo` y lo coloca donde debe ir.
 
 ### 📥 Librería de Temas en la Nube
-- **462+ Temas Gratuitos**: Accede a una base de datos masiva de temas de la comunidad (1.77 GB).
-- **Descarga por Lotes**: Descarga masiva en un clic desde HuggingFace.
-- **Filtros Inteligentes**: Encuentra temas por resolución (Horizontal 320x240, Vertical 480x800, pantallas AIO de refrigeración líquida).
+- **462+ Temas Gratuitos**: Accede a una base de datos masiva de temas de la comunidad.
+- **Vistas Previas Reales**: Sistema de thumbnails optimizado (320px) para navegar rápido por el catálogo.
+- **Filtros Avanzados**: Encuentra temas por resolución (Horizontal, Vertical, Cuadrada/AIO).
 
-### 🎬 Herramientas de Animación Avanzadas
+### 🛠️ Herramientas de Animación
 - **GIF a Tema**: Convierte instantáneamente GIFs genéricos en temas de hardware compatibles.
 - **Video a Frames**: Extrae frames de alta calidad de MP4/AVI para una reproducción fluida.
-- **Control de FPS**: Optimiza el rendimiento con soporte de reproducción de hasta 60fps.
 
 ---
 
@@ -49,34 +54,19 @@
 2. Descomprime el archivo.
 3. Ejecuta `SnakeMarsTheme.exe`.
 
-```bash
-# O si prefieres compilarlo tú mismo:
-git clone https://github.com/Snakefoxu/marsmakertheme.git
-cd marsmakertheme/src
-dotnet build SnakeMarsTheme.sln
-dotnet run --project SnakeMarsTheme/SnakeMarsTheme.csproj
-```
-
 ---
 
-## 📂 Estructura del Repositorio
+## 📂 Estructura del Repositorio Limpio
 
 ```
 SnakeMarsTheme/
 ├── src/
 │   ├── SnakeMarsTheme/       # Aplicación Principal (WPF .NET 8)
-│   │   ├── Services/         # 11 servicios de negocio
-│   │   ├── ViewModels/       # 4 ViewModels (MVVM)
-│   │   ├── Views/            # 3 vistas XAML
-│   │   ├── Models/           # 5 modelos de datos
-│   │   └── Helpers/          # Converters y utilidades
 │   └── ThemeExtractor/       # CLI para extraer temas TURZX
-├── resources/                 # Assets y recursos locales (excluidos del git)
-├── docs/                      # Documentación técnica
-├── build/                     # Scripts de compilación
-└── CHANGELOG.md               # Historial de cambios v1.0
+├── resources/                 # Assets vitales (Temas, GIFs, Previews reducidos)
+├── releases/                  # Binarios compilados (Solo última versión)
+└── USER_MANUAL.md             # Guía de uso detallada
 ```
-
 
 ---
 
@@ -84,7 +74,8 @@ SnakeMarsTheme/
 
 | Documento | Descripción |
 |-----------|-------------|
-| [CHANGELOG.md](CHANGELOG.md) | Registro de cambios (v4.2.1 actual) |
+| [USER_MANUAL.md](USER_MANUAL.md) | **Instrucciones de uso** paso a paso |
+| [CHANGELOG.md](CHANGELOG.md) | Registro de cambios (v1.1.0 actual) |
 | [docs/investigacion/](docs/investigacion/) | Análisis técnico de formatos SOEYI/TURZX |
 
 ---
@@ -93,11 +84,7 @@ SnakeMarsTheme/
 
 - **Contraseña Archivos .photo**: `vmax2025` (Utilizada en temas encriptados originales)
 - **Repositorio de Temas**: [snakefoxu/soeyi-themes](https://huggingface.co/datasets/snakefoxu/soeyi-themes)
-- **17 Resoluciones Soportadas**:
-  - **Vertical**: 360x960, 320x960, 379x960, 462x1920
-  - **Horizontal**: 960x360, 960x320, 960x376, 960x480, 1920x462, 1920x480, 1600x600, 1024x600
-  - **Cuadrada/AIO**: 480x480, 320x240, 240x320, 480x272
-
+- **17 Resoluciones Soportadas**: Soporte nativo para casi cualquier pantalla USB del mercado asiático/occidental.
 
 ---
 
