@@ -9,9 +9,10 @@ Todos los cambios notables de este proyecto se documentarán en este archivo.
 La primera versión estable de **SnakeMarsTheme** - Suite completa para crear y gestionar temas para pantallas LCD Mars Gaming VMAX, SOEYI y displays IPS USB.
 
 #### 📦 Distribución (Full & Light)
-- **Versión Full (~650 MB):** Incluye todos los recursos (Videos, GIFs) para experiencia completa.
-- **Versión Light (~150 MB):** Solo aplicación y catálogos (sin multimedia pesada).
-- **Offline Ready:** Ambas incluyen FFmpeg portable (sin descarga requerida).
+- **Instalador (.exe):** Instalación profesional (Inno Setup) con todo incluido.
+- **Versión Full (.zip):** Portable completa con videos y GIFs.
+- **Versión Light (.zip):** Portable ligera (~150MB).
+- **Offline Ready:** Todas las versiones incluyen FFmpeg.
 - **Automatización:** Nuevo script `build/Publish-Release.ps1` para generar releases.
 
 #### 🛠️ Bug Fixes (Hotfixes v1.0.0)
