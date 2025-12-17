@@ -7,7 +7,7 @@
 > **La Suite Inteligente para Pantallas Mars Gaming VMAX, SOEYI y Displays IPS Turzx**
 > *La única herramienta todo-en-uno para crear, convertir y personalizar temas para la pantalla LCD de tu caja de PC.*
 
-[![Versión](https://img.shields.io/badge/versión-1.0-blue)](https://github.com/Snakefoxu/marsmakertheme/releases)
+[![Versión](https://img.shields.io/badge/versión-4.2.1-blue)](https://github.com/Snakefoxu/marsmakertheme/releases)
 [![Plataforma](https://img.shields.io/badge/plataforma-Windows-lightgrey)]()
 [![Framework](https://img.shields.io/badge/.NET-8.0-purple)]()
 [![Temas en HuggingFace](https://img.shields.io/badge/HuggingFace-462_temas-orange)](https://huggingface.co/datasets/snakefoxu/soeyi-themes)
@@ -52,8 +52,9 @@
 ```bash
 # O si prefieres compilarlo tú mismo:
 git clone https://github.com/Snakefoxu/marsmakertheme.git
-cd marsmakertheme/src/SnakeMarsTheme
-dotnet run
+cd marsmakertheme/src
+dotnet build SnakeMarsTheme.sln
+dotnet run --project SnakeMarsTheme/SnakeMarsTheme.csproj
 ```
 
 ---
@@ -62,13 +63,20 @@ dotnet run
 
 ```
 SnakeMarsTheme/
-├── src/SnakeMarsTheme/    # Aplicación Principal (WPF .NET 8)
-├── resources/             # Assets y recursos locales
-├── docs/                  # Documentación técnica y web
-├── legacy/                # Scripts PowerShell antiguos y utilidades
-├── ROADMAP.md             # Plan de desarrollo futuro
-└── CHANGELOG.md           # Historial de cambios y versiones
+├── src/
+│   ├── SnakeMarsTheme/       # Aplicación Principal (WPF .NET 8)
+│   │   ├── Services/         # 11 servicios de negocio
+│   │   ├── ViewModels/       # 4 ViewModels (MVVM)
+│   │   ├── Views/            # 3 vistas XAML
+│   │   ├── Models/           # 5 modelos de datos
+│   │   └── Helpers/          # Converters y utilidades
+│   └── ThemeExtractor/       # CLI para extraer temas TURZX
+├── resources/                 # Assets y recursos locales (excluidos del git)
+├── docs/                      # Documentación técnica
+├── build/                     # Scripts de compilación
+└── CHANGELOG.md               # Historial de cambios v4.2.1
 ```
+
 
 ---
 
@@ -76,9 +84,8 @@ SnakeMarsTheme/
 
 | Documento | Descripción |
 |-----------|-------------|
-| [ROADMAP.md](ROADMAP.md) | Funcionalidades planeadas y futuro del proyecto |
-| [docs/README.md](docs/README.md) | Índice completo de documentación técnica |
-| [CHANGELOG.md](CHANGELOG.md) | Registro de cambios y actualizaciones |
+| [CHANGELOG.md](CHANGELOG.md) | Registro de cambios (v4.2.1 actual) |
+| [docs/investigacion/](docs/investigacion/) | Análisis técnico de formatos SOEYI/TURZX |
 
 ---
 
@@ -86,10 +93,11 @@ SnakeMarsTheme/
 
 - **Contraseña Archivos .photo**: `vmax2025` (Utilizada en temas encriptados originales)
 - **Repositorio de Temas**: [snakefoxu/soeyi-themes](https://huggingface.co/datasets/snakefoxu/soeyi-themes)
-- **Resoluciones Soportadas**:
-  - 320x240 (Horizontal Estándar)
-  - 480x800 (Vertical Alta Resolución)
-  - 360x960 (Displays Tira/Chasis)
+- **17 Resoluciones Soportadas**:
+  - **Vertical**: 360x960, 320x960, 379x960, 462x1920
+  - **Horizontal**: 960x360, 960x320, 960x376, 960x480, 1920x462, 1920x480, 1600x600, 1024x600
+  - **Cuadrada/AIO**: 480x480, 320x240, 240x320, 480x272
+
 
 ---
 

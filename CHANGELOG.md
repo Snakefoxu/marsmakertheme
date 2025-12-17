@@ -2,9 +2,38 @@
 
 Todos los cambios notables de este proyecto se documentarán en este archivo.
 
+## [v4.2.1] - 2025-12-17
+
+### 🔍 Auditoría y Limpieza del Proyecto
+
+Auditoría completa del código fuente para verificar integración de todos los componentes.
+
+#### ✅ Verificado
+- **11 Servicios**: Todos integrados y activos en ViewModels
+  - ThemeService, ThemeCatalogService, AnimationService, DownloadService
+  - ExtractionService, InstallationService, ProjectService, SettingParser
+  - SettingPreviewService, SmthemePackagerService, ThemeCreatorService
+- **4 ViewModels**: MainViewModel, WizardViewModel, ThemeEditorViewModel, DownloaderViewModel
+- **5 Models**: Theme, ThemeProject, Resolution, ThemeTemplate, WidgetTypes
+- **5 Converters**: BoolToVisibility, InverseBoolToVisibility, InvertBool, BoolToBorderThickness, NotNullToBool
+- **0 código huérfano** en el core de la aplicación
+
+#### 🗑️ Limpieza Ejecutada
+- Eliminado `.backup_wizard_20251216/` (backup obsoleto)
+- Eliminado `.backup_working_20251216_0149/` (backup obsoleto)
+- Eliminado `Controls/` (carpeta vacía sin uso)
+
+#### 📝 Documentado
+- Proyectos auxiliares no incluidos en .sln: SmthemeTest, VerificationApp
+- ThemeExtractor incluido en .sln como herramienta CLI separada
+- Carpeta `archive/` confirmada excluida en .gitignore
+
+---
+
 ## [v4.2.0] - 2025-12-16
 
 ### 🔧 Theme Editor - Reconstrucción Completa
+
 
 El Editor Visual ha sido reescrito desde cero para solucionar problemas críticos de drag & drop y actualización de colores.
 
