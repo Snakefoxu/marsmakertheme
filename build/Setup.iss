@@ -22,9 +22,8 @@ SolidCompression=yes
 WizardStyle=modern
 
 ; Imágenes y Branding
-WizardImageFile=..\assets\branding\installer_banner.png
-; WizardSmallImageFile=..\assets\branding\app_icon.bmp (Pendiente convertir)
-; SetupIconFile=..\assets\branding\app.ico (Pendiente crear)
+WizardImageFile=..\assets\branding\installer_banner.bmp
+SetupIconFile=..\assets\branding\app_icon.ico
 
 ; Arquitectura x64
 ArchitecturesInstallIn64BitMode=x64
