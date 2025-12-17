@@ -148,7 +148,7 @@
                                                Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
                                     <ComboBox ItemsSource="{Binding AvailableTemplates}" 
                                               SelectedItem="{Binding SelectedTemplate}"
-                                              Padding="12,10" FontSize="13" Margin="0,0,0,20}"/>
+                                              Padding="12,10" FontSize="13" Margin="0,0,0,20"/>
                                 </StackPanel>
 
                                 <TextBlock Text="Seleccionar Archivo" FontWeight="SemiBold" FontSize="13"
