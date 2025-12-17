@@ -101,8 +101,7 @@
                             <TextBlock Text="Herramientas Avanzadas" FontWeight="SemiBold" FontSize="13"
                                        Foreground="{StaticResource TextPrimaryBrush}" Margin="0,25,0,8"/>
                              <Button Command="{Binding OpenThemeExtractorCommand}"
-                                    Style="{StaticResource ActionSecondaryButtonStyle}"
-                                    HorizontalAlignment="Left" Width="350">
+                                    HorizontalAlignment="Left" Width="350" Padding="12,10">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="📂" Margin="0,0,10,0"/>
                                     <TextBlock Text="Extraer Recursos de .turtheme (Legacy)"/>
