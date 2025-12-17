@@ -7,7 +7,7 @@
 > **La Suite Inteligente para Pantallas Mars Gaming VMAX, SOEYI y Displays IPS Turzx**
 > *La única herramienta todo-en-uno para crear, convertir y personalizar temas para la pantalla LCD de tu caja de PC.*
 
-[![Versión](https://img.shields.io/badge/versión-4.2.1-blue)](https://github.com/Snakefoxu/marsmakertheme/releases)
+[![Versión](https://img.shields.io/badge/versión-1.0-blue)](https://github.com/Snakefoxu/marsmakertheme/releases)
 [![Plataforma](https://img.shields.io/badge/plataforma-Windows-lightgrey)]()
 [![Framework](https://img.shields.io/badge/.NET-8.0-purple)]()
 [![Temas en HuggingFace](https://img.shields.io/badge/HuggingFace-462_temas-orange)](https://huggingface.co/datasets/snakefoxu/soeyi-themes)
@@ -74,7 +74,7 @@ SnakeMarsTheme/
 ├── resources/                 # Assets y recursos locales (excluidos del git)
 ├── docs/                      # Documentación técnica
 ├── build/                     # Scripts de compilación
-└── CHANGELOG.md               # Historial de cambios v4.2.1
+└── CHANGELOG.md               # Historial de cambios v1.0
 ```
 
 
