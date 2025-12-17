@@ -11,7 +11,9 @@ Automatiza la creación del instalador usando Inno Setup.
 Inno Setup 6.x instalado en Program Files.
 #>
 
-$Version = "v1.0"
+param(
+    [string]$Version = "v1.0.1"
+)
 $ZipName = "SnakeMarsTheme_${Version}_Full.zip"
 $ScriptRoot = $PSScriptRoot
 $RepoRoot = (Get-Item $ScriptRoot).Parent.FullName

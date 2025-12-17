@@ -2,6 +2,12 @@
 
 Todos los cambios notables de este proyecto se documentarán en este archivo.
 
+## [v1.0.1] - 2025-12-17 (Hotfix)
+### 🐛 Bug Fixes
+- **Permisos de Archivos:** Solucionado crash al intentar crear temas si la app estaba instalada en *Program Files*. Ahora los temas de usuario se guardan correctamente en *Mis Documentos/SnakeMarsTheme*.
+- **Instalador:** Ahora solicita permisos de Administrador para instalar correctamente en *Program Files*.
+- **Gestión de Temas:** La aplicación ahora combina temas de instalación (solo lectura) y temas de usuario (escritura).
+
 ## [v1.0.0] - 2025-12-17
 
 ### 🚀 Primera Release Pública

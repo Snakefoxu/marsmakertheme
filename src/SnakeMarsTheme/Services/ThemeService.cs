@@ -9,54 +9,64 @@ namespace SnakeMarsTheme.Services;
 /// </summary>
 public class ThemeService
 {
-    private readonly string _basePath;
-    private readonly string _themeSchemePath;
-    private readonly string _programmePath;
+    private readonly List<string> _basePaths = new();
     private readonly SettingParser _settingParser;
     
-    public string BasePath => _basePath;
+    public string BasePath => _basePaths.FirstOrDefault() ?? "";
     
-    public ThemeService(string basePath)
+    public ThemeService(string basePath, string? userPath = null)
     {
-        _basePath = basePath;
-        _themeSchemePath = Path.Combine(basePath, "resources", "ThemeScheme");
-        _programmePath = Path.Combine(basePath, "resources", "Programme");
+        if (!string.IsNullOrEmpty(basePath) && Directory.Exists(basePath))
+            _basePaths.Add(basePath);
+            
+        if (!string.IsNullOrEmpty(userPath) && Directory.Exists(userPath))
+            _basePaths.Add(userPath);
+            
         _settingParser = new SettingParser();
     }
     
     /// <summary>
-    /// Get all themes from the ThemeScheme folder.
+    /// Get all themes from the ThemeScheme folder in all search paths.
     /// </summary>
     public List<ThemeInfo> GetAllThemes()
     {
         var themes = new List<ThemeInfo>();
-        
-        if (!Directory.Exists(_themeSchemePath))
-            return themes;
-        
-        foreach (var jsonFile in Directory.GetFiles(_themeSchemePath, "*.json"))
+        var processedFiles = new HashSet<string>(); // Evitar duplicados exactos de archivo
+
+        foreach (var baseDir in _basePaths)
         {
-            try
+            var themeSchemePath = Path.Combine(baseDir, "resources", "ThemeScheme");
+            
+            if (!Directory.Exists(themeSchemePath))
+                continue;
+            
+            foreach (var jsonFile in Directory.GetFiles(themeSchemePath, "*.json"))
             {
-                var json = File.ReadAllText(jsonFile);
-                var theme = JsonConvert.DeserializeObject<ThemeJson>(json);
+                if (processedFiles.Contains(jsonFile)) continue;
+                processedFiles.Add(jsonFile);
                 
-                if (theme != null && !string.IsNullOrWhiteSpace(theme.Name))
+                try
                 {
-                    themes.Add(new ThemeInfo
+                    var json = File.ReadAllText(jsonFile);
+                    var theme = JsonConvert.DeserializeObject<ThemeJson>(json);
+                    
+                    if (theme != null && !string.IsNullOrWhiteSpace(theme.Name))
                     {
-                        Name = theme.Name,
-                        Width = (int)(theme.Width ?? 360),
-                        Height = (int)(theme.Height ?? 960),
-                        Type = theme.Type ?? 0,
-                        FilePath = jsonFile,
-                        ThumbnailData = theme.ThumbnailImageData
-                    });
+                        themes.Add(new ThemeInfo
+                        {
+                            Name = theme.Name,
+                            Width = (int)(theme.Width ?? 360),
+                            Height = (int)(theme.Height ?? 960),
+                            Type = theme.Type ?? 0,
+                            FilePath = jsonFile,
+                            ThumbnailData = theme.ThumbnailImageData
+                        });
+                    }
                 }
-            }
-            catch
-            {
-                // Skip invalid JSON files
+                catch
+                {
+                    // Skip invalid JSON files
+                }
             }
         }
         
@@ -68,25 +78,31 @@ public class ThemeService
     /// </summary>
     public string? GetThumbnailPath(string themeName)
     {
-        var programmeFolder = Path.Combine(_programmePath, themeName);
-        
         var searchFiles = new[] { "demo.png", "back.png", "1.png" };
-        foreach (var file in searchFiles)
-        {
-            var path = Path.Combine(programmeFolder, file);
-            if (File.Exists(path))
-                return path;
-        }
         
-        // Search in source subfolder
-        var sourceFolder = Path.Combine(programmeFolder, "source");
-        if (Directory.Exists(sourceFolder))
+        foreach (var baseDir in _basePaths)
         {
+            var programmeFolder = Path.Combine(baseDir, "resources", "Programme", themeName);
+            
+            if (!Directory.Exists(programmeFolder)) continue;
+
             foreach (var file in searchFiles)
             {
-                var path = Path.Combine(sourceFolder, file);
+                var path = Path.Combine(programmeFolder, file);
                 if (File.Exists(path))
                     return path;
+            }
+            
+            // Search in source subfolder
+            var sourceFolder = Path.Combine(programmeFolder, "source");
+            if (Directory.Exists(sourceFolder))
+            {
+                foreach (var file in searchFiles)
+                {
+                    var path = Path.Combine(sourceFolder, file);
+                    if (File.Exists(path))
+                        return path;
+                }
             }
         }
         
@@ -111,11 +127,18 @@ public class ThemeService
             
             // Check for Setting.txt
             var themeName = Path.GetFileNameWithoutExtension(jsonPath);
-            var settingPath = Path.Combine(_programmePath, themeName, "Setting.txt");
             
-            if (File.Exists(settingPath))
+            // Inferir ruta de Programme relativa al JSON (ThemeScheme -> resources -> Programme)
+            var themeSchemeDir = Path.GetDirectoryName(jsonPath);
+            var resourcesDir = Directory.GetParent(themeSchemeDir!)?.FullName;
+            
+            if (resourcesDir != null)
             {
-                return _settingParser.Parse(settingPath);
+                var settingPath = Path.Combine(resourcesDir, "Programme", themeName, "Setting.txt");
+                if (File.Exists(settingPath))
+                {
+                    return _settingParser.Parse(settingPath);
+                }
             }
             
             // Return basic theme from JSON

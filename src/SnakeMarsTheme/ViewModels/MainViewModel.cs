@@ -63,8 +63,10 @@ public partial class MainViewModel : ObservableObject
                 basePath = currentDir.FullName;
             }
         }
+
         
-        _themeService = new ThemeService(basePath);
+        var userPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SnakeMarsTheme");
+        _themeService = new ThemeService(basePath, userPath);
         LoadThemes();
     }
     

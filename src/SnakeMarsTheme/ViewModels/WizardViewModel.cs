@@ -366,7 +366,15 @@ public partial class WizardViewModel : ObservableObject
         }
         
         _basePath = basePath;
-        _themeCreatorService = new ThemeCreatorService(_basePath);
+        
+        // FIX: Usar "Mis Documentos/SnakeMarsTheme" para escritura (evitar error de permisos en Program Files)
+        var userPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SnakeMarsTheme");
+        if (!Directory.Exists(userPath))
+        {
+            try { Directory.CreateDirectory(userPath); } catch { /* Ignore if fails, service handles dir creation too */ }
+        }
+
+        _themeCreatorService = new ThemeCreatorService(userPath);
         _animationService = new AnimationService();
         _selectedResolution = Resolution.Presets[0];
         LoadWidgetCategories();
