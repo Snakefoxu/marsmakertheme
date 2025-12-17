@@ -28,45 +28,8 @@ public partial class MainViewModel : ObservableObject
     
     public MainViewModel()
     {
-        // Get base path - prioritize LOCAL resources folder first (for publish mode)
-        var exePath = AppDomain.CurrentDomain.BaseDirectory;
-        string basePath;
-        
-        // PRIORITY 1: Check for resources/ in SAME directory as .exe (publish mode)
-        var localResourcesPath = Path.Combine(exePath, "resources");
-        if (Directory.Exists(localResourcesPath))
-        {
-            basePath = exePath;
-        }
-        else
-        {
-            // PRIORITY 2: Search UP the directory tree (dev mode)
-            var currentDir = new DirectoryInfo(exePath);
-            while (currentDir != null)
-            {
-                var resourcesPath = Path.Combine(currentDir.FullName, "resources");
-                if (Directory.Exists(resourcesPath))
-                {
-                    basePath = currentDir.FullName;
-                    break;
-                }
-                currentDir = currentDir.Parent;
-            }
-            
-            // PRIORITY 3: Fallback to old method
-            if (currentDir == null)
-            {
-                basePath = Path.GetFullPath(Path.Combine(exePath, "..", "..", "..", "..", ".."));
-            }
-            else
-            {
-                basePath = currentDir.FullName;
-            }
-        }
-
-        
-        var userPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SnakeMarsTheme");
-        _themeService = new ThemeService(basePath, userPath);
+        // Use PathService for robust path handling (Portable vs Installed)
+        _themeService = new ThemeService(PathService.AppDir, PathService.UserDataDir);
         LoadThemes();
     }
     

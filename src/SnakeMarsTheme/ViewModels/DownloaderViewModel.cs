@@ -15,7 +15,11 @@ public partial class DownloaderViewModel : ObservableObject
     private readonly InstallationService _installationService;
     private readonly ThemeCatalogService _catalogService;
     private readonly SmthemePackagerService _smthemeService;
-    private readonly string _basePath;
+    
+    // Audit Compliance: Split Read (Install) vs Write (User Data) paths
+    private readonly string _readPath;
+    private readonly string _writePath;
+    
     private string? _lastExtractedPath;
     
     [ObservableProperty]
@@ -114,50 +118,20 @@ public partial class DownloaderViewModel : ObservableObject
 
     public DownloaderViewModel()
     {
-        var exePath = AppDomain.CurrentDomain.BaseDirectory;
+        // PathService handles all path logic (Audit Compliant)
+        _readPath = PathService.AppDir;      // Read-only stock assets (Catalog, Previews)
+        _writePath = PathService.UserDataDir; // Writable user data (Downloads, Extracted Themes)
         
-        // Smart path detection: find the folder that contains "resources/"
-        // Works for both development (bin/Debug/net8.0-windows/) and published (publish/)
-        _basePath = FindBasePath(exePath);
-        
-        _downloadService = new DownloadService(_basePath);
-        _extractionService = new ExtractionService(_basePath);
+        _downloadService = new DownloadService(_readPath, _writePath);
+        _extractionService = new ExtractionService(_writePath); // Extracts to user folder
         _installationService = new InstallationService();
-        _catalogService = new ThemeCatalogService(_basePath);
+        _catalogService = new ThemeCatalogService(_readPath); // Reads stock catalog
         _smthemeService = new SmthemePackagerService();
         
         // Check installations
         Is7ZipAvailable = _extractionService.Is7ZipAvailable();
         IsSOEYIInstalled = _installationService.IsSOEYIInstalled();
         IsMarsInstalled = _installationService.IsMarsGamingInstalled();
-        
-        // For now, don't auto-load local catalog as we want to user to hit "Connect"
-        // But we could show cached data if we implemented caching
-    }
-    
-    /// <summary>
-    /// Finds the base path by looking for a folder that contains "resources/"
-    /// </summary>
-    private static string FindBasePath(string startPath)
-    {
-        var current = startPath;
-        
-        // Walk up to 6 levels looking for resources/ folder
-        for (int i = 0; i < 6; i++)
-        {
-            var resourcesPath = Path.Combine(current, "resources");
-            if (Directory.Exists(resourcesPath))
-            {
-                return current;
-            }
-            
-            var parent = Directory.GetParent(current);
-            if (parent == null) break;
-            current = parent.FullName;
-        }
-        
-        // Fallback to old behavior (5 levels up from exe)
-        return Path.GetFullPath(Path.Combine(startPath, "..", "..", "..", "..", ".."));
     }
     
     private void RefreshThemesList()
@@ -169,18 +143,10 @@ public partial class DownloaderViewModel : ObservableObject
             SelectedResolution == "Todas" || 
             t.Resolution.Contains(SelectedResolution.Split(' ')[0])
         ).ToList();
-        
-        // Re-populating observable collection might be expensive if done poorly
-        // But for filtering only visual, maybe we should use ICollectionView
-        // For now, let's just update visibility or re-fetch logic slightly
     }
     
     partial void OnSelectedResolutionChanged(string value)
     {
-        // If we have themes loaded, filter them
-        // Note: Currently LoadThemesAsync populates _availableThemes directly. 
-        // Real filtering would require a separate source list. 
-        // For simplicity in this version, we will require reloading or improve this later.
         StatusText = $"Filtro: {value} (Recargar para aplicar cambios si no se actualiza)";
     }
     
@@ -188,7 +154,7 @@ public partial class DownloaderViewModel : ObservableObject
     private async Task LoadThemesAsync()
     {
         IsLoading = true;
-        StatusText = $"Cargando catálogo desde: {_basePath}";
+        StatusText = $"Cargando catálogo desde: {_readPath}";
         AvailableThemes.Clear();
         
         try
@@ -197,7 +163,7 @@ public partial class DownloaderViewModel : ObservableObject
             
             if (themes.Count == 0)
             {
-                StatusText = $"Catálogo vacío. Path: {_basePath}";
+                StatusText = $"Catálogo vacío. Path: {_readPath}";
                 return;
             }
             
@@ -211,6 +177,7 @@ public partial class DownloaderViewModel : ObservableObject
 
             foreach (var theme in filteredThemes)
             {
+                theme.IsDownloaded = _downloadService.IsDownloaded(theme);
                 AvailableThemes.Add(theme);
                 totalBytes += theme.Size;
             }
@@ -228,7 +195,7 @@ public partial class DownloaderViewModel : ObservableObject
         catch (Exception ex)
         {
             StatusText = $"Error: {ex.Message}";
-            System.Windows.MessageBox.Show($"Error cargando catálogo:\n{ex.Message}\n\nPath: {_basePath}\n\nStack:\n{ex.StackTrace}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            System.Windows.MessageBox.Show($"Error cargando catálogo:\n{ex.Message}\n\nPath: {_readPath}\n\nStack:\n{ex.StackTrace}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
         }
         finally
         {
@@ -271,6 +238,7 @@ public partial class DownloaderViewModel : ObservableObject
             if (success)
             {
                 StatusText = $"'{SelectedTheme.Name}' descargado exitosamente!";
+                SelectedTheme.IsDownloaded = true;
                 UpdateThemeStatus();
             }
             else
@@ -303,11 +271,11 @@ public partial class DownloaderViewModel : ObservableObject
 
         if (isSmtheme)
         {
-             filePath = Path.Combine(_basePath, "resources", "Themes_SMTHEME", SelectedTheme.FileName);
+             filePath = Path.Combine(_writePath, "resources", "Themes_SMTHEME", SelectedTheme.FileName);
         }
         else
         {
-             filePath = Path.Combine(_basePath, "resources", "ThemesPhoto", SelectedTheme.FileName);
+             filePath = Path.Combine(_writePath, "resources", "ThemesPhoto", SelectedTheme.FileName);
         }
         
         if (!File.Exists(filePath))
@@ -324,15 +292,14 @@ public partial class DownloaderViewModel : ObservableObject
                 IsDownloading = true;
                 StatusText = $"Instalando paquete unificado {SelectedTheme.Name}...";
                 
-                // Define extraction path (standard themes folder)
-                // Use Name or Name without spaces
+                // Define extraction path (standard themes folder in User Data)
                 string cleanName = SelectedTheme.Name.Trim();
-                string outputFolder = Path.Combine(_basePath, "resources", "themes", cleanName);
+                string outputFolder = Path.Combine(_writePath, "resources", "themes", cleanName);
                 
                 // Ensure unique
                 if (Directory.Exists(outputFolder))
                 {
-                    outputFolder = Path.Combine(_basePath, "resources", "themes", $"{cleanName}_{DateTime.Now.Ticks}");
+                    outputFolder = Path.Combine(_writePath, "resources", "themes", $"{cleanName}_{DateTime.Now.Ticks}");
                 }
 
                 await Task.Run(() => _smthemeService.UnpackTheme(filePath, outputFolder));
@@ -394,8 +361,8 @@ public partial class DownloaderViewModel : ObservableObject
             // Try to guess path if selected
              if (SelectedTheme != null)
              {
-                 // Check if standard extracted path exists
-                 string potentialPath = Path.Combine(_basePath, "resources", "themes", SelectedTheme.Name);
+                 // Check if standard extracted path exists (in User Data)
+                 string potentialPath = Path.Combine(_writePath, "resources", "themes", SelectedTheme.Name);
                  if (Directory.Exists(potentialPath))
                  {
                      _lastExtractedPath = potentialPath;
@@ -434,7 +401,7 @@ public partial class DownloaderViewModel : ObservableObject
              if (SelectedTheme != null)
              {
                  // Check if standard extracted path exists
-                 string potentialPath = Path.Combine(_basePath, "resources", "themes", SelectedTheme.Name);
+                 string potentialPath = Path.Combine(_writePath, "resources", "themes", SelectedTheme.Name);
                  if (Directory.Exists(potentialPath))
                  {
                      _lastExtractedPath = potentialPath;
@@ -479,8 +446,6 @@ public partial class DownloaderViewModel : ObservableObject
         var success = await _installationService.RestartMarsGamingAsync();
         StatusText = success ? "Mars Gaming reiniciado" : "Error al reiniciar Mars Gaming";
     }
-    
-    // SOEYI direct download removed - Use Catalog instead
     
     [RelayCommand]
     private async Task DownloadAllThemesAsync()
@@ -574,8 +539,8 @@ public partial class DownloaderViewModel : ObservableObject
         ThemePreviewImage = null;
         HasPreview = false;
         
-        // 1. Try LOCAL preview first (resources/previews/{name}.png)
-        var previewsFolder = Path.Combine(_basePath, "resources", "previews");
+        // 1. Try LOCAL preview first (resources/previews/{name}.png) - READ Only
+        var previewsFolder = Path.Combine(_readPath, "resources", "previews");
         var localPreview = Path.Combine(previewsFolder, $"{theme.Name}.png");
         
         if (File.Exists(localPreview))
@@ -626,8 +591,8 @@ public partial class DownloaderViewModel : ObservableObject
         if (isDownloaded)
         {
             SelectedThemeStatus = "Descargado - Listo para instalar";
-            // Check if extracted/installed
-            if (Directory.Exists(Path.Combine(_basePath, "resources", "themes", SelectedTheme.Name)))
+            // Check if extracted/installed in User Data
+            if (Directory.Exists(Path.Combine(_writePath, "resources", "themes", SelectedTheme.Name)))
             {
                  SelectedThemeStatus = "INSTALADO & Descargado";
             }

@@ -2,6 +2,18 @@
 
 Todos los cambios notables de este proyecto se documentarán en este archivo.
 
+## [v1.1.0] - 2025-12-17 (UI Upgrade)
+### ✨ Nuevas Características
+- **Doble Click:** Aplicación directa de GIFs como fondo desde la lista.
+- **Smart Previews:** Generación automática de thumbnails para GIFs (incluido script `GeneratePreviews.ps1`).
+- **UI de Rotación:** Botones rápidos (0°, 90°, 180°, 270°) en la barra inferior.
+- **Rutas Inteligentes:** Diálogos "Importar/Exportar" detectan automáticamente carpetas `.photo` y `.smtheme`.
+- **Footer Rediseñado:** Mayor tamaño y visibilidad para las herramientas principales.
+
+### 🐛 Bug Fixes
+- **Startup Crash:** Resuelto conflicto crítico de recursos XAML (`TextMutedBrush`).
+- **Undo/Redo:** Reparada la lógica de actualización de comandos.
+
 ## [v1.0.1] - 2025-12-17 (Hotfix)
 ### 🐛 Bug Fixes
 - **Permisos de Archivos:** Solucionado crash al intentar crear temas si la app estaba instalada en *Program Files*. Ahora los temas de usuario se guardan correctamente en *Mis Documentos/SnakeMarsTheme*.

@@ -1,5 +1,5 @@
 #define MyAppName "SnakeMarsTheme"
-#define MyAppVersion "1.0.1"
+#define MyAppVersion "1.0.7"
 #define MyAppPublisher "SnakeFoxu"
 #define MyAppExeName "SnakeMarsTheme.exe"
 #define OutputPath "..\releases"
@@ -49,3 +49,15 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
+
+[Code]
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usPostUninstall then
+  begin
+    if MsgBox('¿Desea eliminar también todos los temas descargados y configuraciones de usuario?' #13#13 'Esto borrará permanentemente la carpeta: ' + ExpandConstant('{userdocs}\SnakeMarsTheme'), mbConfirmation, MB_YESNO) = IDYES then
+    begin
+      DelTree(ExpandConstant('{userdocs}\SnakeMarsTheme'), True, True, True);
+    end;
+  end;
+end;

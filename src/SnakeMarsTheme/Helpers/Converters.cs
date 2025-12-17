@@ -76,3 +76,47 @@ public class NotNullToBoolConverter : IValueConverter
         throw new NotImplementedException();
     }
 }
+
+/// <summary>
+/// Converts int to bool for RadioButton binding (checks if value equals parameter)
+/// </summary>
+public class IntToBoolConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is int intValue && parameter is string paramStr && int.TryParse(paramStr, out int paramInt))
+        {
+            return intValue == paramInt;
+        }
+        return false;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is bool boolValue && boolValue && parameter is string paramStr && int.TryParse(paramStr, out int paramInt))
+        {
+            return paramInt;
+        }
+        return Binding.DoNothing;
+    }
+}
+
+/// <summary>
+/// Converts int angle to RotateTransform for image rotation
+/// </summary>
+public class IntToRotateTransformConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is int angle)
+        {
+            return new System.Windows.Media.RotateTransform(angle);
+        }
+        return new System.Windows.Media.RotateTransform(0);
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}

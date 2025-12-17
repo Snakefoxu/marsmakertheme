@@ -214,75 +214,23 @@ public partial class ThemeEditorView : UserControl
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // VIDEO BACKGROUND SUPPORT
+    // MEDIA LIBRARY - DOUBLE CLICK TO APPLY
+    // ═══════════════════════════════════════════════════════════════
+
+    private void Media_DoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (ViewModel.SelectedMediaItem != null && ViewModel.ApplyMediaAsBackgroundCommand.CanExecute(ViewModel.SelectedMediaItem))
+        {
+            ViewModel.ApplyMediaAsBackgroundCommand.Execute(ViewModel.SelectedMediaItem);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // DATA CONTEXT MANAGEMENT
     // ═══════════════════════════════════════════════════════════════
     
     private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
-        if (e.OldValue is ThemeEditorViewModel oldVm)
-            oldVm.PropertyChanged -= ViewModel_PropertyChanged;
-        if (e.NewValue is ThemeEditorViewModel newVm)
-            newVm.PropertyChanged += ViewModel_PropertyChanged;
-    }
-    
-    private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(ThemeEditorViewModel.VideoSource))
-        {
-            Dispatcher.BeginInvoke(() =>
-            {
-                try
-                {
-                    if (ViewModel.VideoSource != null && ViewModel.IsVideoBackground)
-                    {
-                        BackgroundVideo.Source = ViewModel.VideoSource;
-                        BackgroundVideo.Play();
-                    }
-                    else
-                    {
-                        BackgroundVideo.Stop();
-                        BackgroundVideo.Source = null;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Video error: {ex.Message}");
-                }
-            });
-        }
-    }
-    
-    private void BackgroundVideo_MediaEnded(object sender, RoutedEventArgs e)
-    {
-        if (sender is MediaElement media)
-        {
-            media.Position = TimeSpan.Zero;
-            media.Play();
-        }
-    }
-    
-    private void BackgroundVideo_MediaFailed(object sender, ExceptionRoutedEventArgs e)
-    {
-        System.Diagnostics.Debug.WriteLine($"Video failed: {e.ErrorException?.Message}");
-        MessageBox.Show(
-            $"No se pudo cargar el video:\n{e.ErrorException?.Message}",
-            "Error de Video",
-            MessageBoxButton.OK,
-            MessageBoxImage.Warning);
-        
-        if (DataContext is ThemeEditorViewModel vm)
-        {
-            vm.IsVideoBackground = false;
-            vm.VideoSource = null;
-        }
-    }
-    
-    private void BackgroundVideo_Loaded(object sender, RoutedEventArgs e)
-    {
-        if (sender is MediaElement media && ViewModel.IsVideoBackground)
-        {
-            try { media.Play(); }
-            catch { /* ignore */ }
-        }
+        // Basic ViewModel subscription for future extensibility
     }
 }

@@ -22,7 +22,23 @@ namespace SnakeMarsTheme.Services
         
         public AnimationService()
         {
-            _tempFramesFolder = Path.Combine(Path.GetTempPath(), "SnakeMarsTheme_Frames");
+            // Determinar si es modo portable o instalado
+            var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            var appDir = Path.GetDirectoryName(exePath) ?? "";
+            var portableMarker = Path.Combine(appDir, "portable.txt");
+            
+            if (File.Exists(portableMarker) || appDir.Contains("bin"))
+            {
+                // Modo portable: guardar junto a la app
+                _tempFramesFolder = Path.Combine(appDir, "ConvertedGifs");
+            }
+            else
+            {
+                // Modo instalado: guardar en Documents
+                var docsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                _tempFramesFolder = Path.Combine(docsPath, "SnakeMarsTheme", "ConvertedGifs");
+            }
+            
             Directory.CreateDirectory(_tempFramesFolder);
         }
         
@@ -227,5 +243,83 @@ namespace SnakeMarsTheme.Services
         /// Obtiene la ruta de la carpeta temporal de frames.
         /// </summary>
         public string GetTempFramesFolder() => _tempFramesFolder;
+        
+        /// <summary>
+        /// Convierte un archivo de video a GIF animado usando FFmpeg.
+        /// </summary>
+        /// <param name="videoPath">Ruta al archivo de video</param>
+        /// <param name="fps">Frames por segundo del GIF (default: 15)</param>
+        /// <param name="width">Ancho del GIF en pixeles (default: 360 para Mars Gaming)</param>
+        /// <returns>Ruta al archivo GIF generado</returns>
+        public async Task<string> ConvertVideoToGif(string videoPath, int fps = 15, int width = 360)
+        {
+            if (!File.Exists(videoPath))
+                throw new FileNotFoundException($"Video no encontrado: {videoPath}");
+            
+            await EnsureFFmpegReady();
+            
+            // Crear nombre único para el GIF
+            var videoName = Path.GetFileNameWithoutExtension(videoPath);
+            var gifPath = Path.Combine(_tempFramesFolder, $"{videoName}_{DateTime.Now:yyyyMMddHHmmss}.gif");
+            
+            try
+            {
+                // Obtener path de FFmpeg
+                var ffmpegPath = FFmpeg.ExecutablesPath;
+                var ffmpegExe = Path.Combine(ffmpegPath ?? "", "ffmpeg.exe");
+                
+                if (!File.Exists(ffmpegExe))
+                {
+                    // Fallback to LocalAppData
+                    ffmpegPath = Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                        "SnakeMarsTheme", "FFmpeg");
+                    ffmpegExe = Path.Combine(ffmpegPath, "ffmpeg.exe");
+                }
+                
+                if (!File.Exists(ffmpegExe))
+                    throw new Exception("FFmpeg no encontrado");
+                
+                // Ejecutar FFmpeg directamente como proceso
+                // -t 5 = solo 5 segundos del video (evita GIFs enormes)
+                // fps=10 = 10 frames por segundo (suficiente para preview)
+                var args = $"-i \"{videoPath}\" -t 5 -vf \"fps=10,scale={width}:-1:flags=lanczos\" -y \"{gifPath}\"";
+                
+                var process = new System.Diagnostics.Process
+                {
+                    StartInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = ffmpegExe,
+                        Arguments = args,
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        RedirectStandardError = true,
+                        RedirectStandardOutput = true
+                    }
+                };
+                
+                process.Start();
+                
+                // Timeout de 120 segundos para videos complejos
+                var completed = await Task.Run(() => process.WaitForExit(120000));
+                if (!completed)
+                {
+                    process.Kill();
+                    throw new Exception("Timeout: La conversión tardó más de 2 minutos.\nEste video es demasiado complejo para convertir automáticamente.");
+                }
+                
+                if (!File.Exists(gifPath))
+                {
+                    var error = await process.StandardError.ReadToEndAsync();
+                    throw new Exception($"FFmpeg falló: {error}");
+                }
+                
+                return gifPath;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al convertir video a GIF: {ex.Message}", ex);
+            }
+        }
     }
 }

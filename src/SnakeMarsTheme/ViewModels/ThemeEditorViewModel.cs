@@ -13,6 +13,14 @@ using SnakeMarsTheme.Services;
 namespace SnakeMarsTheme.ViewModels;
 
 // Snapshot for Undo/Redo system
+public class FileItem
+{
+    public string Name { get; set; } = "";
+    public string FullPath { get; set; } = "";
+    public string Icon { get; set; } = "📄"; // 🎥 o 🖼️
+    public string? PreviewPath { get; set; }
+}
+
 public class EditorSnapshot
 {
     public List<WidgetSnapshot> Widgets { get; set; } = new();
@@ -99,6 +107,18 @@ public partial class ThemeEditorViewModel : ObservableObject
     private Uri? _videoSource;
     
     [ObservableProperty]
+    private bool _isGifBackground;
+    
+    [ObservableProperty]
+    private string? _gifSourcePath;
+    
+    /// <summary>
+    /// Rotation angle for the background (0, 90, 180, 270)
+    /// </summary>
+    [ObservableProperty]
+    private int _backgroundRotation = 0;
+    
+    [ObservableProperty]
     private ObservableCollection<PlacedWidgetItem> _placedWidgets = new();
     
     [ObservableProperty]
@@ -117,6 +137,17 @@ public partial class ThemeEditorViewModel : ObservableObject
     [ObservableProperty]
     private WidgetTemplate? _selectedAvailableWidget;
     
+    // --- MEDIA_LIBRARY ---
+    [ObservableProperty]
+    private ObservableCollection<FileItem> _availableGifs = new();
+    
+    [ObservableProperty]
+    private FileItem? _selectedMediaItem;
+    
+    [ObservableProperty]
+    private bool _showMediaLibrary; // Toggle between Widgets and Media
+    // ---------------------
+
     [ObservableProperty]
     private string _selectedCategory = "CPU";
     
@@ -193,7 +224,130 @@ public partial class ThemeEditorViewModel : ObservableObject
         
         LoadWidgetsForCategory();
         LoadTemplates();
+        LoadMediaResources();
         UpdatePreview(); // Initial preview generation
+    }
+    
+    private void LoadMediaResources()
+    {
+        AvailableGifs.Clear();
+
+        // 1. Scan Resources in Repo Root (Dev Env)
+        var repoResources = Path.Combine(_basePath, "resources");
+        ScanMediaInFolder(repoResources);
+        
+        // 2. Scan Resources in App Directory (Prod/Release Env)
+        var appResources = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resources");
+        if (Directory.Exists(appResources) && appResources != repoResources)
+        {
+             ScanMediaInFolder(appResources);
+        }
+    }
+
+    private void ScanMediaInFolder(string rootPath)
+    {
+        if (!Directory.Exists(rootPath)) return;
+
+        // GIFs (includes converted videos)
+        var gifPath = Path.Combine(rootPath, "GIFs");
+        if (Directory.Exists(gifPath))
+        {
+            var files = Directory.GetFiles(gifPath, "*.gif", SearchOption.AllDirectories);
+            var previewsPath = Path.Combine(rootPath, "Previews");
+            
+            foreach(var f in files)
+            {
+                if(!AvailableGifs.Any(g => g.FullPath == f))
+                {
+                    var item = new FileItem 
+                    { 
+                        Name = Path.GetFileName(f), 
+                        FullPath = f, 
+                        Icon = "🎞️" 
+                    };
+
+                    // Try detecting preview
+                    if (Directory.Exists(previewsPath))
+                    {
+                        var nameNoExt = Path.GetFileNameWithoutExtension(f);
+                        var pngPreview = Path.Combine(previewsPath, nameNoExt + ".png");
+                        if (File.Exists(pngPreview))
+                        {
+                            item.PreviewPath = pngPreview;
+                        }
+                    }
+
+                    AvailableGifs.Add(item);
+                }
+            }
+        }
+    }
+
+    [RelayCommand]
+    private void ToggleLibraryView()
+    {
+        ShowMediaLibrary = !ShowMediaLibrary;
+    }
+
+    [RelayCommand]
+    private void ApplyMediaAsBackground(FileItem item)
+    {
+        if(item == null) return;
+        
+        SaveStateForUndo();
+        
+        // Clear previous background state
+        BackgroundImage = null;
+        VideoSource = null;
+        GifSourcePath = null;
+        IsVideoBackground = false;
+        IsGifBackground = false;
+        
+        // Verify file exists
+        if (!File.Exists(item.FullPath))
+        {
+            MessageBox.Show($"Archivo no encontrado:\n{item.FullPath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+        
+        System.Diagnostics.Debug.WriteLine($"[MEDIA] Applying: {item.FullPath}");
+        
+        var ext = Path.GetExtension(item.FullPath).ToLowerInvariant();
+        
+        if (ext == ".gif")
+        {
+            // GIFs use XamlAnimatedGif directly
+            IsGifBackground = true;
+            GifSourcePath = item.FullPath;
+            System.Diagnostics.Debug.WriteLine($"[GIF] Set GifSourcePath: {GifSourcePath}");
+        }
+        else if (ext == ".png" || ext == ".jpg" || ext == ".jpeg")
+        {
+            // Static images
+            try
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.UriSource = new Uri(item.FullPath);
+                bitmap.EndInit();
+                BackgroundImage = bitmap;
+            }
+            catch { }
+        }
+        else
+        {
+            // Videos no soportados - usa los GIFs de la biblioteca
+            MessageBox.Show(
+                "Los videos han sido convertidos a GIFs.\n\n" +
+                "Busca el GIF correspondiente en la biblioteca de GIFs.",
+                "Info",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+        
+        BackgroundPath = item.FullPath;
     }
     
     private void LoadTemplates()
@@ -305,6 +459,8 @@ public partial class ThemeEditorViewModel : ObservableObject
         OnPropertyChanged(nameof(CanUndo));
         OnPropertyChanged(nameof(CanRedo));
         OnPropertyChanged(nameof(UndoStatus));
+        UndoCommand.NotifyCanExecuteChanged();
+        RedoCommand.NotifyCanExecuteChanged();
     }
     
     [RelayCommand(CanExecute = nameof(CanUndo))]
@@ -322,6 +478,8 @@ public partial class ThemeEditorViewModel : ObservableObject
         OnPropertyChanged(nameof(CanUndo));
         OnPropertyChanged(nameof(CanRedo));
         OnPropertyChanged(nameof(UndoStatus));
+        UndoCommand.NotifyCanExecuteChanged();
+        RedoCommand.NotifyCanExecuteChanged();
     }
     
     [RelayCommand(CanExecute = nameof(CanRedo))]
@@ -339,6 +497,21 @@ public partial class ThemeEditorViewModel : ObservableObject
         OnPropertyChanged(nameof(CanUndo));
         OnPropertyChanged(nameof(CanRedo));
         OnPropertyChanged(nameof(UndoStatus));
+        UndoCommand.NotifyCanExecuteChanged();
+        RedoCommand.NotifyCanExecuteChanged();
+    }
+    
+    [RelayCommand]
+    private void SetRotation(string angleStr)
+    {
+        if (int.TryParse(angleStr, out int angle))
+        {
+            if (BackgroundRotation != angle)
+            {
+                SaveStateForUndo();
+                BackgroundRotation = angle;
+            }
+        }
     }
     
     // ============== End Undo/Redo ==============
@@ -746,30 +919,74 @@ public partial class ThemeEditorViewModel : ObservableObject
     }
     
     [RelayCommand]
-    private void LoadBackground()
+    private async Task LoadBackground()
     {
         var dialog = new OpenFileDialog
         {
-            Filter = "Todos los fondos|*.png;*.jpg;*.jpeg;*.gif;*.mp4;*.avi;*.wmv|Imagenes|*.png;*.jpg;*.jpeg;*.gif|Videos|*.mp4;*.avi;*.wmv",
-            Title = "Seleccionar fondo (imagen o video)"
+            Filter = "Todos los fondos|*.png;*.jpg;*.jpeg;*.gif;*.mp4;*.avi;*.wmv|Imagenes|*.png;*.jpg;*.jpeg|GIFs|*.gif|Videos|*.mp4;*.avi;*.wmv",
+            Title = "Seleccionar fondo (imagen, GIF o video)"
         };
         
         if (dialog.ShowDialog() == true)
         {
+            SaveStateForUndo();
+            
+            // Clear all background states first
+            BackgroundImage = null;
+            VideoSource = null;
+            GifSourcePath = null;
+            IsVideoBackground = false;
+            IsGifBackground = false;
+            
             BackgroundPath = dialog.FileName;
             var ext = Path.GetExtension(dialog.FileName).ToLowerInvariant();
             
-            // Check if it's a video
             if (ext == ".mp4" || ext == ".avi" || ext == ".wmv")
             {
-                IsVideoBackground = true;
-                VideoSource = new Uri(dialog.FileName);
-                BackgroundImage = null;
+                // Convert video to GIF using FFmpeg
+                try
+                {
+                    System.Windows.Input.Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+                    
+                    var animService = new Services.AnimationService();
+                    System.Diagnostics.Debug.WriteLine($"[VIDEO] Converting to GIF: {dialog.FileName}");
+                    
+                    var gifPath = await Task.Run(() => animService.ConvertVideoToGif(dialog.FileName, fps: 15, width: ThemeWidth));
+                    
+                    System.Windows.Input.Mouse.OverrideCursor = null;
+                    
+                    if (System.IO.File.Exists(gifPath))
+                    {
+                        IsGifBackground = true;
+                        GifSourcePath = gifPath;
+                        System.Diagnostics.Debug.WriteLine($"[VIDEO→GIF] Converted: {gifPath}");
+                    }
+                    else
+                    {
+                        throw new Exception("El archivo GIF no se generó correctamente");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.Input.Mouse.OverrideCursor = null;
+                    MessageBox.Show(
+                        $"Error al convertir video a GIF:\n{ex.Message}\n\n" +
+                        "Alternativa: Convierte manualmente usando ezgif.com",
+                        "Error de Conversión",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    BackgroundPath = "";
+                }
+            }
+            else if (ext == ".gif")
+            {
+                // GIFs use XamlAnimatedGif
+                IsGifBackground = true;
+                GifSourcePath = dialog.FileName;
             }
             else
             {
-                IsVideoBackground = false;
-                VideoSource = null;
+                // Static images (PNG, JPG)
                 try
                 {
                     var bitmap = new BitmapImage();
@@ -787,8 +1004,24 @@ public partial class ThemeEditorViewModel : ObservableObject
     [RelayCommand]
     private void ClearCanvas()
     {
+        SaveStateForUndo();
+        
+        // Clear widgets
         PlacedWidgets.Clear();
         SelectedWidget = null;
+        
+        // Clear backgrounds
+        BackgroundImage = null;
+        BackgroundPath = "";
+        VideoSource = null;
+        GifSourcePath = null;
+        IsVideoBackground = false;
+        IsGifBackground = false;
+        
+        // Reset theme name
+        ThemeName = "NuevoTema";
+        
+        UpdatePreview();
     }
     
     [RelayCommand]
@@ -1058,7 +1291,8 @@ public partial class ThemeEditorViewModel : ObservableObject
             Title = "Exportar tema .photo",
             Filter = "Archivo Photo|*.photo",
             FileName = $"{ThemeName}.photo",
-            DefaultExt = ".photo"
+            DefaultExt = ".photo",
+            InitialDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resources", "ThemesPhoto")
         };
         
         if (dialog.ShowDialog() != true) return;
@@ -1130,7 +1364,8 @@ public partial class ThemeEditorViewModel : ObservableObject
                 Title = "Exportar tema .smtheme",
                 Filter = "Archivo SnakeMars Theme|*.smtheme",
                 FileName = $"{ThemeName}.smtheme",
-                DefaultExt = ".smtheme"
+                DefaultExt = ".smtheme",
+                InitialDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resources", "Themes_SMTHEME")
             };
             
             if (dialog.ShowDialog() != true) return;
@@ -1166,11 +1401,19 @@ public partial class ThemeEditorViewModel : ObservableObject
     [RelayCommand]
     private async Task ImportSmtheme()
     {
+        var initialDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resources", "Themes_SMTHEME");
+        if (!Directory.Exists(initialDir))
+        {
+             // Fallback to generic resources or base dir
+             initialDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resources");
+        }
+
         var dialog = new OpenFileDialog
         {
             Title = "Importar tema .smtheme",
             Filter = "Archivos SnakeMars Theme|*.smtheme|Todos los archivos|*.*",
-            DefaultExt = ".smtheme"
+            DefaultExt = ".smtheme",
+            InitialDirectory = Directory.Exists(initialDir) ? initialDir : AppDomain.CurrentDomain.BaseDirectory
         };
         
         if (dialog.ShowDialog() != true) return;
@@ -1297,11 +1540,18 @@ public partial class ThemeEditorViewModel : ObservableObject
             return;
         }
         
+        var initialDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resources", "ThemesPhoto");
+        if (!Directory.Exists(initialDir))
+        {
+             initialDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resources");
+        }
+
         var dialog = new Microsoft.Win32.OpenFileDialog
         {
             Title = "Importar tema .photo",
             Filter = "Archivos Photo|*.photo|Todos los archivos|*.*",
-            DefaultExt = ".photo"
+            DefaultExt = ".photo",
+            InitialDirectory = Directory.Exists(initialDir) ? initialDir : AppDomain.CurrentDomain.BaseDirectory
         };
         
         if (dialog.ShowDialog() != true) return;

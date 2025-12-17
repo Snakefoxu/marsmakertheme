@@ -143,7 +143,7 @@
                                           Padding="12,10" FontSize="13" Margin="0,0,0,20"/>
 
                                 <!-- File Selection -->
-                                <StackPanel Visibility="{Binding HasTemplates, Converter={StaticResource BoolToVis}}">
+                                <StackPanel Visibility="{Binding HasTemplates, Converter={StaticResource GlobalBoolToVis}}">
                                     <TextBlock Text="🎬 Plantillas Disponibles" FontWeight="SemiBold" FontSize="13"
                                                Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
                                     <ComboBox ItemsSource="{Binding AvailableTemplates}" 
@@ -249,7 +249,7 @@
 
                     <!-- Adaptive Layout Container -->
                     <!-- VERTICAL/SQUARE LAYOUT: Column-based -->
-                    <Grid Grid.Row="1" Visibility="{Binding IsHorizontalLayout, Converter={StaticResource InverseBoolToVis}}">
+                    <Grid Grid.Row="1" Visibility="{Binding IsHorizontalLayout, Converter={StaticResource GlobalInverseBoolToVis}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding PreviewContainerWidth}"/>
                             <ColumnDefinition Width="180"/>
@@ -278,7 +278,7 @@
                                                Width="{Binding CanvasWidth}"
                                                Height="{Binding CanvasHeight}"
                                                Stretch="Fill"
-                                               Visibility="{Binding IsVideoBackground, Converter={StaticResource InverseBoolToVis}}"/>
+                                               Visibility="{Binding IsVideoBackground, Converter={StaticResource GlobalInverseBoolToVis}}"/>
 
                                         <!-- Background Video -->
                                         <MediaElement x:Name="WizardVideo"
@@ -289,7 +289,7 @@
                                                       LoadedBehavior="Manual"
                                                       UnloadedBehavior="Stop"
                                                       MediaEnded="Video_MediaEnded"
-                                                      Visibility="{Binding IsVideoBackground, Converter={StaticResource BoolToVis}}"/>
+                                                      Visibility="{Binding IsVideoBackground, Converter={StaticResource GlobalBoolToVis}}"/>
 
                                         <!-- Invisible drag overlay - click to drag widget -->
                                         <ItemsControl ItemsSource="{Binding SelectedWidgets}">
@@ -360,7 +360,7 @@
                         <StackPanel Grid.Column="2">
                             <!-- Propiedades - DIRECT BINDING to SelectedThemeWidget -->
                             <Border Background="{StaticResource BackgroundLightBrush}" CornerRadius="8" Padding="12" Margin="0,0,0,10">
-                                <StackPanel IsEnabled="{Binding SelectedThemeWidget, Converter={StaticResource NotNullToBool}}">
+                                <StackPanel IsEnabled="{Binding SelectedThemeWidget, Converter={StaticResource GlobalNotNullToBool}}">
                                     <TextBlock Text="PROPIEDADES" FontWeight="Bold" Foreground="{StaticResource AccentCyanBrush}" 
                                                FontSize="10" Margin="0,0,0,10"/>
                                     <Grid Margin="0,0,0,6">
@@ -409,7 +409,7 @@
                     </Grid>
 
                     <!-- HORIZONTAL LAYOUT: Row-based -->
-                    <Grid Grid.Row="1" Visibility="{Binding IsHorizontalLayout, Converter={StaticResource BoolToVis}}">
+                    <Grid Grid.Row="1" Visibility="{Binding IsHorizontalLayout, Converter={StaticResource GlobalBoolToVis}}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
@@ -512,7 +512,7 @@
                                            Width="{Binding CanvasWidth}"
                                            Height="{Binding CanvasHeight}"
                                            Stretch="Fill"
-                                           Visibility="{Binding IsVideoBackground, Converter={StaticResource InverseBoolToVis}}"/>
+                                           Visibility="{Binding IsVideoBackground, Converter={StaticResource GlobalInverseBoolToVis}}"/>
 
                                     <MediaElement Source="{Binding VideoSource}"
                                                   Width="{Binding CanvasWidth}"
@@ -521,7 +521,7 @@
                                                   LoadedBehavior="Manual"
                                                   UnloadedBehavior="Stop"
                                                   MediaEnded="Video_MediaEnded"
-                                                  Visibility="{Binding IsVideoBackground, Converter={StaticResource BoolToVis}}"/>
+                                                  Visibility="{Binding IsVideoBackground, Converter={StaticResource GlobalBoolToVis}}"/>
 
                                     <!-- Invisible drag overlay - click to drag widget -->
                                     <ItemsControl ItemsSource="{Binding SelectedWidgets}">

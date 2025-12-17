@@ -329,52 +329,12 @@ public partial class WizardViewModel : ObservableObject
     
     public WizardViewModel()
     {
-        // Get base path - prioritize LOCAL resources folder first (for publish mode)
-        var exePath = AppDomain.CurrentDomain.BaseDirectory;
-        string basePath;
+        // Use PathService for Clean Audit Compliance
+        _basePath = PathService.AppDir; 
         
-        // PRIORITY 1: Check for resources/ in SAME directory as .exe (publish mode)
-        var localResourcesPath = Path.Combine(exePath, "resources");
-        if (Directory.Exists(localResourcesPath))
-        {
-            basePath = exePath;
-        }
-        else
-        {
-            // PRIORITY 2: Search UP the directory tree (dev mode)
-            var currentDir = new DirectoryInfo(exePath);
-            while (currentDir != null)
-            {
-                var resourcesPath = Path.Combine(currentDir.FullName, "resources");
-                if (Directory.Exists(resourcesPath))
-                {
-                    basePath = currentDir.FullName;
-                    break;
-                }
-                currentDir = currentDir.Parent;
-            }
-            
-            // PRIORITY 3: Fallback to old method
-            if (currentDir == null)
-            {
-                basePath = Path.GetFullPath(Path.Combine(exePath, "..", "..", "..", "..", ".."));
-            }
-            else
-            {
-                basePath = currentDir.FullName;
-            }
-        }
+        // Write themes to user data folder
+        _themeCreatorService = new ThemeCreatorService(PathService.UserDataDir);
         
-        _basePath = basePath;
-        
-        // FIX: Usar "Mis Documentos/SnakeMarsTheme" para escritura (evitar error de permisos en Program Files)
-        var userPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SnakeMarsTheme");
-        if (!Directory.Exists(userPath))
-        {
-            try { Directory.CreateDirectory(userPath); } catch { /* Ignore if fails, service handles dir creation too */ }
-        }
-
-        _themeCreatorService = new ThemeCreatorService(userPath);
         _animationService = new AnimationService();
         _selectedResolution = Resolution.Presets[0];
         LoadWidgetCategories();

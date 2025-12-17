@@ -68,13 +68,17 @@
                                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Foreground="{StaticResource TextPrimaryBrush}" Margin="3,2">
-                                            <Run Text="{Binding TypeIcon, Mode=OneWay}" FontFamily="Segoe UI Emoji"/> 
-                                            <Run Text=" [" Foreground="{StaticResource AccentCyanBrush}"/>
-                                            <Run Text="{Binding Resolution, Mode=OneWay}" Foreground="{StaticResource AccentCyanBrush}"/>
-                                            <Run Text="] " Foreground="{StaticResource AccentCyanBrush}"/>
-                                            <Run Text="{Binding Name, Mode=OneWay}"/>
-                                        </TextBlock>
+                                        <StackPanel Orientation="Horizontal" Margin="3,2">
+                                            <TextBlock Text="✔ " Foreground="{StaticResource AccentGreenBrush}" FontWeight="Bold"
+                                                       Visibility="{Binding IsDownloaded, Converter={StaticResource GlobalBoolToVis}, Mode=OneWay}"/>
+                                            <TextBlock Foreground="{StaticResource TextPrimaryBrush}">
+                                                <Run Text="{Binding TypeIcon, Mode=OneWay}" FontFamily="Segoe UI Emoji"/> 
+                                                <Run Text=" [" Foreground="{StaticResource AccentCyanBrush}"/>
+                                                <Run Text="{Binding Resolution, Mode=OneWay}" Foreground="{StaticResource AccentCyanBrush}"/>
+                                                <Run Text="] " Foreground="{StaticResource AccentCyanBrush}"/>
+                                                <Run Text="{Binding Name, Mode=OneWay}"/>
+                                            </TextBlock>
+                                        </StackPanel>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
@@ -87,7 +91,7 @@
                                 <ProgressBar Height="8" Value="{Binding DownloadProgress}" Maximum="100"
                                              Background="{StaticResource BackgroundDarkBrush}"
                                              Foreground="{StaticResource AccentGreenBrush}"
-                                             Visibility="{Binding IsDownloading, Converter={StaticResource BoolToVis}}"/>
+                                             Visibility="{Binding IsDownloading, Converter={StaticResource GlobalBoolToVis}}"/>
                                 <TextBlock Text="{Binding StatusText}" Foreground="{StaticResource AccentGreenBrush}" 
                                            FontWeight="Bold" Margin="0,5,0,0"/>
                             </StackPanel>
@@ -215,14 +219,14 @@
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="7-Zip: " Foreground="{StaticResource TextSecondaryBrush}"/>
                                         <TextBlock Text="✓ Instalado" Foreground="{StaticResource AccentGreenBrush}" 
-                                                   Visibility="{Binding Is7ZipAvailable, Converter={StaticResource BoolToVis}}"/>
+                                                   Visibility="{Binding Is7ZipAvailable, Converter={StaticResource GlobalBoolToVis}}"/>
                                         <TextBlock Text="✗ No encontrado" Foreground="{StaticResource AccentRedBrush}" 
-                                                   Visibility="{Binding Is7ZipAvailable, Converter={StaticResource InverseBoolToVis}}"/>
+                                                   Visibility="{Binding Is7ZipAvailable, Converter={StaticResource GlobalInverseBoolToVis}}"/>
                                     </StackPanel>
                                 </Border>
                                 
                                 <TextBlock Text="Cargando..." Foreground="{StaticResource AccentOrangeBrush}" Margin="0,15,0,0"
-                                           Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}"/>
+                                           Visibility="{Binding IsLoading, Converter={StaticResource GlobalBoolToVis}}"/>
                             </StackPanel>
                         </Border>
                     </Grid>

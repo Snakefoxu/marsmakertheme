@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Text.Json;
 using System.IO;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace SnakeMarsTheme.Services;
 
@@ -11,20 +12,23 @@ public class DownloadService
 {
     private readonly HttpClient _httpClient;
     private readonly string _downloadPath;
-    private readonly string _basePath;
+    private readonly string _readPath;
+    private readonly string _writePath;
     private const string HUGGINGFACE_RAW = "https://huggingface.co/datasets/snakefoxu/soeyi-themes/resolve/main";
     
-    public DownloadService(string basePath)
+    public DownloadService(string readPath, string writePath)
     {
-        _basePath = basePath;
+        _readPath = readPath;
+        _writePath = writePath;
         _httpClient = new HttpClient();
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "SnakeMarsTheme/4.0");
-        _downloadPath = Path.Combine(basePath, "resources", "ThemesPhoto");
         
-        // Ensure standard theme directories exist
-        var smthemePath = Path.Combine(basePath, "resources", "Themes_SMTHEME");
-        Directory.CreateDirectory(_downloadPath);
-        Directory.CreateDirectory(smthemePath);
+        // Write to User Data (Audited)
+        _downloadPath = Path.Combine(writePath, "resources", "ThemesPhoto");
+        var smthemePath = Path.Combine(writePath, "resources", "Themes_SMTHEME");
+        
+        if (!Directory.Exists(_downloadPath)) Directory.CreateDirectory(_downloadPath);
+        if (!Directory.Exists(smthemePath)) Directory.CreateDirectory(smthemePath);
     }
     
     /// <summary>
@@ -37,8 +41,8 @@ public class DownloadService
         
         try
         {
-            // Read from LOCAL catalog.json (no network needed for browsing)
-            var catalogPath = Path.Combine(_basePath, "resources", "catalog.json");
+            // Read from LOCAL catalog.json (Install Dir)
+            var catalogPath = Path.Combine(_readPath, "resources", "catalog.json");
             
             if (!File.Exists(catalogPath))
             {
@@ -218,23 +222,26 @@ public class DownloadService
     }
 }
 
-public class RemoteTheme
+
+public partial class RemoteTheme : ObservableObject
 {
     public int Id { get; set; }
     public string Name { get; set; } = "";
     public string FileName { get; set; } = "";
     public long Size { get; set; }
     public string DownloadUrl { get; set; } = "";
-    public string? Url { get; set; } // Alias for DownloadUrl if needed, or separate
+    public string? Url { get; set; }
     public string? ThumbnailUrl { get; set; }
     public string Resolution { get; set; } = "";
     
-    // New fields for v4.1
-    public string Type { get; set; } = "photo"; // "photo" or "smtheme"
+    public string Type { get; set; } = "photo";
     public string Source { get; set; } = "unknown";
     public List<string> Tags { get; set; } = new();
 
     public string TypeIcon => Type == "smtheme" ? "📦" : "🖼️";
+    
+    [ObservableProperty]
+    private bool _isDownloaded;
     
     public string SizeFormatted => Size switch
     {
