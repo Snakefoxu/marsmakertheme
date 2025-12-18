@@ -22,68 +22,54 @@ namespace SnakeMarsTheme.Services
         
         public AnimationService()
         {
-            // Determinar si es modo portable o instalado
-            var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            var appDir = Path.GetDirectoryName(exePath) ?? "";
-            var portableMarker = Path.Combine(appDir, "portable.txt");
-            
-            if (File.Exists(portableMarker) || appDir.Contains("bin"))
-            {
-                // Modo portable: guardar junto a la app
-                _tempFramesFolder = Path.Combine(appDir, "ConvertedGifs");
-            }
-            else
-            {
-                // Modo instalado: guardar en Documents
-                var docsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                _tempFramesFolder = Path.Combine(docsPath, "SnakeMarsTheme", "ConvertedGifs");
-            }
+            // UNIFICADO: Usar PathService centralizado (corrige PROBLEMA 2 de auditoría)
+            PathService.Initialize(); // Asegurar inicialización
+            _tempFramesFolder = PathService.ConvertedGifsPath;
             
             Directory.CreateDirectory(_tempFramesFolder);
         }
         
         /// <summary>
-        /// Inicializa FFmpeg descargándolo automáticamente si no está disponible.
+        /// Inicializa FFmpeg verificando que exista localmente.
+        /// Busca en múltiples ubicaciones posibles.
         /// </summary>
         private async Task EnsureFFmpegReady()
         {
             if (_ffmpegInitialized) return;
             
-            try
+            // Lista de rutas donde buscar ffmpeg.exe
+            var searchPaths = new List<string>();
+            
+            // 1. Ruta centralizada de PathService (userdata/resources/FFmpeg)
+            searchPaths.Add(PathService.FFmpegPath);
+            
+            // 2. resources/FFmpeg en el directorio de la app
+            var appDir = AppDomain.CurrentDomain.BaseDirectory;
+            searchPaths.Add(Path.Combine(appDir, "resources", "FFmpeg"));
+            
+            // 3. Buscar en subcarpetas (ffmpeg viene a veces en ffmpeg-xxx/bin/)
+            var ffmpegResourcesDir = Path.Combine(appDir, "resources", "FFmpeg");
+            if (Directory.Exists(ffmpegResourcesDir))
             {
-                // Intentar usar FFmpeg del sistema primero
-                var ffmpegPath = FFmpeg.ExecutablesPath;
-                if (File.Exists(Path.Combine(ffmpegPath ?? "", "ffmpeg.exe")))
+                foreach (var subDir in Directory.GetDirectories(ffmpegResourcesDir))
+                {
+                    searchPaths.Add(subDir);
+                    searchPaths.Add(Path.Combine(subDir, "bin"));
+                }
+            }
+            
+            // Buscar ffmpeg.exe en todas las rutas
+            foreach (var path in searchPaths)
+            {
+                var ffmpegExe = Path.Combine(path, "ffmpeg.exe");
+                if (File.Exists(ffmpegExe))
                 {
                     _ffmpegInitialized = true;
                     return;
                 }
             }
-            catch { }
             
-            try
-            {
-                // Descargar FFmpeg automáticamente a carpeta local
-                var appDataPath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "SnakeMarsTheme", "FFmpeg");
-                
-                Directory.CreateDirectory(appDataPath);
-                FFmpeg.SetExecutablesPath(appDataPath);
-                
-                // Verificar si ya está descargado
-                if (!File.Exists(Path.Combine(appDataPath, "ffmpeg.exe")))
-                {
-                    // Descargar binarios de FFmpeg (~80MB)
-                    await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, appDataPath);
-                }
-                
-                _ffmpegInitialized = true;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"No se pudo inicializar FFmpeg: {ex.Message}", ex);
-            }
+            throw new Exception("FFmpeg no encontrado. Asegúrate de que la aplicación esté completa.");
         }
         
         /// <summary>
@@ -264,26 +250,50 @@ namespace SnakeMarsTheme.Services
             
             try
             {
-                // Obtener path de FFmpeg
-                var ffmpegPath = FFmpeg.ExecutablesPath;
-                var ffmpegExe = Path.Combine(ffmpegPath ?? "", "ffmpeg.exe");
+                // Buscar FFmpeg en múltiples ubicaciones
+                string? ffmpegExe = null;
+                var appDir = AppDomain.CurrentDomain.BaseDirectory;
                 
-                if (!File.Exists(ffmpegExe))
+                // Lista de rutas donde buscar
+                var searchPaths = new List<string>
                 {
-                    // Fallback to LocalAppData
-                    ffmpegPath = Path.Combine(
-                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                        "SnakeMarsTheme", "FFmpeg");
-                    ffmpegExe = Path.Combine(ffmpegPath, "ffmpeg.exe");
+                    PathService.FFmpegPath,
+                    Path.Combine(appDir, "resources", "FFmpeg")
+                };
+                
+                // Añadir subcarpetas de resources/FFmpeg
+                var ffmpegResourcesDir = Path.Combine(appDir, "resources", "FFmpeg");
+                if (Directory.Exists(ffmpegResourcesDir))
+                {
+                    foreach (var subDir in Directory.GetDirectories(ffmpegResourcesDir))
+                    {
+                        searchPaths.Add(subDir);
+                        searchPaths.Add(Path.Combine(subDir, "bin"));
+                    }
                 }
                 
-                if (!File.Exists(ffmpegExe))
+                // Buscar ffmpeg.exe
+                foreach (var path in searchPaths)
+                {
+                    var candidate = Path.Combine(path, "ffmpeg.exe");
+                    if (File.Exists(candidate))
+                    {
+                        ffmpegExe = candidate;
+                        break;
+                    }
+                }
+                
+                if (ffmpegExe == null)
                     throw new Exception("FFmpeg no encontrado");
                 
                 // Ejecutar FFmpeg directamente como proceso
-                // -t 5 = solo 5 segundos del video (evita GIFs enormes)
-                // fps=10 = 10 frames por segundo (suficiente para preview)
-                var args = $"-i \"{videoPath}\" -t 5 -vf \"fps=10,scale={width}:-1:flags=lanczos\" -y \"{gifPath}\"";
+                // CONFIGURACIÓN PARA PREVIEW:
+                // - 30 segundos de video (preview completo)
+                // - 8 FPS (fluido y rápido ~0.35 seg conversión)
+                // - Sin paleta (velocidad)
+                // - El tema final usa MP4 original
+                
+                var args = $"-i \"{videoPath}\" -t 30 -vf \"fps=8,scale={width}:-1\" -y \"{gifPath}\"";
                 
                 var process = new System.Diagnostics.Process
                 {

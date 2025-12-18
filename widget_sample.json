@@ -1,0 +1,15 @@
+{
+  "Id": "cf1d6d48-e26e-466b-ac97-c7b9e82c7178",
+  "Left": 0.0,
+  "Top": 0.0,
+  "ZIndex": 0,
+  "TextType": "CpuUsage",
+  "Text": "14,6%",
+  "Color": "255, 255, 255",
+  "FontName": "Segoe UI",
+  "FontSize": 30.0,
+  "Bold": true,
+  "Italic": false,
+  "Underline": false,
+  "TitleVisibility": false
+}

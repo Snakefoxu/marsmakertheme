@@ -1,0 +1,86 @@
+﻿{
+  "Type": 0,
+  "Name": "gif",
+  "Width": 320,
+  "Height": 240,
+  "FillMode": 0,
+  "CropArea": "0, 0, 0, 0",
+  "ThumbnailImageData": null,
+  "DisplayDirection": 0,
+  "FontDirection": 0,
+  "BackgroundImage": null,
+  "BackgroundVideoFile": null,
+  "DisplayTexts": [
+    {
+      "Id": "876ea42e-ebe1-4092-8bd0-ec4c36953a92",
+      "Left": 20,
+      "Top": 50,
+      "ZIndex": 0,
+      "TextType": "CPUTemp",
+      "Text": "00\u00B0C",
+      "Color": "255, 255, 255",
+      "FontName": "Impact",
+      "FontSize": 24,
+      "Bold": true,
+      "Italic": false,
+      "Underline": false,
+      "TitleVisibility": false
+    },
+    {
+      "Id": "701f40f3-e5f8-4d5a-8727-f12f4c3c3edd",
+      "Left": 30,
+      "Top": 90,
+      "ZIndex": 1,
+      "TextType": "CpuUsage",
+      "Text": "00%",
+      "Color": "255, 255, 255",
+      "FontName": "Impact",
+      "FontSize": 24,
+      "Bold": true,
+      "Italic": false,
+      "Underline": false,
+      "TitleVisibility": false
+    },
+    {
+      "Id": "622fa29b-422b-445f-be7e-d7ba043ff398",
+      "Left": 40,
+      "Top": 130,
+      "ZIndex": 2,
+      "TextType": "GPUTemp",
+      "Text": "00\u00B0C",
+      "Color": "255, 255, 255",
+      "FontName": "Impact",
+      "FontSize": 24,
+      "Bold": true,
+      "Italic": false,
+      "Underline": false,
+      "TitleVisibility": false
+    },
+    {
+      "Id": "98e4208b-f4f5-4a7f-9375-9859848ca022",
+      "Left": 200,
+      "Top": 860,
+      "ZIndex": 3,
+      "TextType": "GpuUsage",
+      "Text": "00%",
+      "Color": "255, 255, 255",
+      "FontName": "Impact",
+      "FontSize": 72,
+      "Bold": true,
+      "Italic": false,
+      "Underline": false,
+      "TitleVisibility": false
+    }
+  ],
+  "DisplayImages": [
+    {
+      "Left": 0,
+      "Top": 0,
+      "ZIndex": 0,
+      "ImageFileName": null,
+      "Image": "{PROGRAMME_PATH}\\gif\\test.gif",
+      "Width": 360,
+      "Height": 960
+    }
+  ]
+}

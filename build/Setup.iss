@@ -52,12 +52,22 @@ Type: filesandordirs; Name: "{app}"
 
 [Code]
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  LocalAppData: String;
 begin
   if CurUninstallStep = usPostUninstall then
   begin
+    // Preguntar por datos de usuario en Documentos
     if MsgBox('¿Desea eliminar también todos los temas descargados y configuraciones de usuario?' #13#13 'Esto borrará permanentemente la carpeta: ' + ExpandConstant('{userdocs}\SnakeMarsTheme'), mbConfirmation, MB_YESNO) = IDYES then
     begin
       DelTree(ExpandConstant('{userdocs}\SnakeMarsTheme'), True, True, True);
+    end;
+    
+    // Limpiar datos legacy en LocalAppData (FFmpeg descargado, etc.)
+    LocalAppData := ExpandConstant('{localappdata}\SnakeMarsTheme');
+    if DirExists(LocalAppData) then
+    begin
+      DelTree(LocalAppData, True, True, True);
     end;
   end;
 end;

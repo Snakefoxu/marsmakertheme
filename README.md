@@ -7,7 +7,7 @@
 > **La Suite Inteligente para Pantallas Mars Gaming VMAX, SOEYI y Displays IPS Turzx**
 > *La única herramienta todo-en-uno para crear, convertir y personalizar temas para la pantalla LCD de tu caja de PC.*
 
-[![Versión](https://img.shields.io/badge/versión-1.1.0-blue)](https://github.com/Snakefoxu/marsmakertheme/releases)
+[![Versión](https://img.shields.io/badge/versión-4.2.1-blue)](https://github.com/Snakefoxu/marsmakertheme/releases)
 [![Plataforma](https://img.shields.io/badge/plataforma-Windows-lightgrey)]()
 [![Framework](https://img.shields.io/badge/.NET-8.0-purple)]()
 [![Temas en HuggingFace](https://img.shields.io/badge/HuggingFace-462_temas-orange)](https://huggingface.co/datasets/snakefoxu/soeyi-themes)
@@ -18,15 +18,22 @@
 
 ---
 
-## 🔥 Características Principales (v1.1.0)
+## 🔥 Características Principales (v4.2.1)
 
 ### 🎨 Editor Visual de Temas (WYSIWYG)
-- **Interfaz Drag & Drop**: Diseña temas personalizados fácilmente para tus pantallas USB IPS genéricas de 3.5" o 5".
-- **Widget Arsenal**: Monitoriza Temperatura CPU, Uso de GPU, Velocidad RAM, Red, Clima, Ventiladores y más (75+ widgets).
+- **Interfaz Drag & Drop**: Diseña temas personalizados fácilmente para pantallas USB IPS de 3.5" o 5".
+- **32 Widgets Oficiales Mars Gaming**: Validados al 100% en hardware real
+    - **CPU**: CPUTemp, CpuUsage, CpuFrequency, CpuVoltage, CpuTEC
+    - **GPU**: GPUTemp, GpuUsage, GpuFrequency, GPUMemoryFrequency, GpuTEC
+    - **Sistema**: CurrentTime, CurrentDate, LunarDate, ScreenBrightness, PowerMode, WeatherInfo
+    - **Red**: UpNetSpeed, DownNetSpeed, WifiState, WifiName, ConnectedWifiSSID
+    - **Hardware**: BatteryLevel, CapLockPressed, NumLockPressed, MemoryUsage, DiskTemp
+    - **Bluetooth/Audio**: BleState, IsMute, Volume, y más
 - **Control Total de Medios**: 
     - **Rotación**: Rota fondos 90°/180°/270° al instante.
-    - **Formatos**: Soporte para Imagen, GIF y Video (.mp4).
+    - **Formatos**: Soporte para GIF (Type 0 validado), Imagen estática, Video (.mp4).
 - **Deshacer/Rehacer**: Sistema robusto para editar sin miedo.
+- **Instalación Directa**: Botones para instalar en Mars Gaming/SOEYI con auto-elevación.
 
 ### 🧙‍♂️ Asistentes Inteligentes
 - **Wizard de Inicio**: Crea temas base en 3 pasos (Pantalla -> Orientación -> Estilo).

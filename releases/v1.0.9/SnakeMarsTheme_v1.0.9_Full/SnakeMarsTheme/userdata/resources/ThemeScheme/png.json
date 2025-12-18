@@ -1,0 +1,15 @@
+﻿{
+  "Type": 1,
+  "Name": "png",
+  "Width": 360,
+  "Height": 960,
+  "FillMode": 0,
+  "CropArea": "0, 0, 0, 0",
+  "ThumbnailImageData": null,
+  "DisplayDirection": 0,
+  "FontDirection": 0,
+  "BackgroundImage": null,
+  "BackgroundVideoFile": null,
+  "DisplayTexts": [],
+  "DisplayImages": []
+}

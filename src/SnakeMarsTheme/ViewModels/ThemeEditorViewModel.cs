@@ -59,6 +59,8 @@ public partial class ThemeEditorViewModel : ObservableObject
     private readonly ProjectService _projectService;
     private readonly SettingPreviewService _settingPreviewService;
     private readonly SmthemePackagerService _smthemePackagerService;
+    private readonly InstallationService _installationService;
+    private readonly AnimationService _animationService;
     private readonly string _basePath;
     private PlacedWidgetItem? _clipboardWidget;
     private string? _currentProjectPath;
@@ -111,6 +113,13 @@ public partial class ThemeEditorViewModel : ObservableObject
     
     [ObservableProperty]
     private string? _gifSourcePath;
+    
+    /// <summary>
+    /// Ruta original del video (MP4) cuando se usa conversión a GIF solo para preview.
+    /// Al generar el tema, se usa esta ruta en vez del GIF convertido.
+    /// </summary>
+    [ObservableProperty]
+    private string? _originalVideoPath;
     
     /// <summary>
     /// Rotation angle for the background (0, 90, 180, 270)
@@ -178,7 +187,7 @@ public partial class ThemeEditorViewModel : ObservableObject
     
     public ObservableCollection<string> Categories { get; } = new()
     {
-        "CPU", "GPU", "Memoria", "Sistema", "Ventiladores", "Disco", "Red", "Clima", "Etiquetas", "Barras"
+        "CPU", "GPU", "Memoria", "Sistema", "Red", "Bluetooth", "Audio", "Hardware"
     };
     
     public ObservableCollection<string> AvailableFonts { get; } = new()
@@ -221,6 +230,8 @@ public partial class ThemeEditorViewModel : ObservableObject
         _projectService = new ProjectService(_basePath);
         _settingPreviewService = new SettingPreviewService();
         _smthemePackagerService = new SmthemePackagerService();
+        _installationService = new InstallationService();
+        _animationService = new AnimationService();
         
         LoadWidgetsForCategory();
         LoadTemplates();
@@ -307,6 +318,7 @@ public partial class ThemeEditorViewModel : ObservableObject
         BackgroundImage = null;
         VideoSource = null;
         GifSourcePath = null;
+        OriginalVideoPath = null;
         IsVideoBackground = false;
         IsGifBackground = false;
         
@@ -606,143 +618,65 @@ public partial class ThemeEditorViewModel : ObservableObject
     
     private List<WidgetTemplate> GetWidgetsForCategory(string category)
     {
+        // SOLO los 32 TextTypes oficiales extraídos del DIY de Mars Gaming
+        // Cualquier TextType no listado aquí causa pantalla blanca
         return category switch
         {
             "CPU" => new()
             {
-                // Temperatura
                 new("🌡️", "Temperatura CPU", "CPUTemp", "°C"),
-                new("🌡️", "Temp CPU (SOEYI)", "CPUT", "°C"),
-                // Uso
-                new("📊", "Uso CPU", "CPUUsage", "%"),
-                new("📊", "Uso CPU (alias)", "CpuUsage", "%"),
-                // Frecuencia
-                new("⚡", "Frecuencia CPU", "CPUClock", "MHz"),
-                new("⚡", "Frecuencia CPU (alias)", "CpuFrequency", "MHz"),
-                // Voltaje
-                new("🔌", "Voltaje CPU", "CPUVoltage", "V"),
-                new("🔌", "Voltaje CPU (alias)", "CpuVoltage", "V"),
-                // Potencia
-                new("⚡", "Potencia CPU", "CPUPower", "W"),
-                new("⚡", "TDP CPU", "CpuTEC", "W"),
-                // Fan
-                new("🌀", "Ventilador CPU", "CPUFanSpeed", "RPM"),
-                // Etiqueta
-                new("🏷️", "Etiqueta CPU", "CPU", ""),
+                new("📊", "Uso CPU", "CpuUsage", "%"),
+                new("⚡", "Frecuencia CPU", "CpuFrequency", "MHz"),
+                new("🔌", "Voltaje CPU", "CpuVoltage", "V"),
+                new("⚡", "Consumo CPU (TDP)", "CpuTEC", "W"),
             },
             "GPU" => new()
             {
-                // Temperatura
                 new("🌡️", "Temperatura GPU", "GPUTemp", "°C"),
-                new("🌡️", "Temp GPU (SOEYI)", "GPUT", "°C"),
-                // Uso
-                new("📊", "Uso GPU", "GPUUsage", "%"),
-                new("📊", "Uso GPU (alias)", "GpuUsage", "%"),
-                // Frecuencia
-                new("⚡", "Frecuencia GPU", "GPUClock", "MHz"),
-                new("⚡", "Frecuencia GPU (alias)", "GpuFrequency", "MHz"),
-                // Memoria
-                new("💾", "Memoria GPU usada", "GPUMemUsed", "MB"),
-                new("💾", "Uso VRAM (%)", "GPUMemoryLoad", "%"),
-                // Potencia
-                new("⚡", "Potencia GPU", "GPUPower", "W"),
-                new("⚡", "TDP GPU", "GpuTEC", "W"),
-                // Fan
-                new("🌀", "Ventilador GPU", "GPUFanSpeed", "RPM"),
-                // Etiqueta
-                new("🏷️", "Etiqueta GPU", "GPU", ""),
+                new("📊", "Uso GPU", "GpuUsage", "%"),
+                new("⚡", "Frecuencia GPU", "GpuFrequency", "MHz"),
+                new("⚡", "Frecuencia memoria GPU", "GPUMemoryFrequency", "MHz"),
+                new("⚡", "Consumo GPU (TDP)", "GpuTEC", "W"),
             },
             "Memoria" => new()
             {
-                // Uso
-                new("📊", "Uso de memoria", "MemoryUsed", "%"),
-                new("📊", "Uso memoria (alias)", "MemoryUsage", "%"),
-                // GB
-                new("💾", "Memoria usada (GB)", "MemoryUsedGB", "GB"),
-                new("💾", "Memoria usada (alias)", "MemoryUse", "GB"),
-                new("💾", "Memoria total", "MemoryTotal", "GB"),
-                // Frecuencia
-                new("⚡", "Frecuencia RAM", "MemoryClock", "MHz"),
-                new("⚡", "Frecuencia RAM (alias)", "MemoryFrequency", "MHz"),
-                // Entero
-                new("🔢", "Uso RAM entero", "MemoryUseInt", ""),
-                // Etiquetas
-                new("🏷️", "Etiqueta RAM", "RAM", ""),
-                new("🏷️", "Etiqueta ROM", "ROM", ""),
+                new("📊", "Uso de memoria", "MemoryUsage", "%"),
+                new("🌡️", "Temperatura disco", "DiskTemp", "°C"),
             },
             "Sistema" => new()
             {
-                // Hora
                 new("🕐", "Hora actual", "CurrentTime", ""),
-                new("🕐", "Hora (TIME)", "TIME", ""),
-                new("🕐", "Hora alternativa", "CurrentTimeShut", ""),
-                new("🕐", "Solo hora", "CurrentH", ""),
-                new("🕐", "Solo minutos", "CurrentM", ""),
-                // Fecha
                 new("📅", "Fecha actual", "CurrentDate", ""),
-                new("📅", "Fecha completa", "CurrentDates", ""),
-                new("📅", "Solo año", "CurrentDatesY", ""),
-                new("📅", "Solo mes", "CurrentDatesM", ""),
-                new("📅", "Solo día", "CurrentDatesD", ""),
-                new("📅", "Mes y día", "CurrentDatesMD", ""),
-                // Semana
-                new("📆", "Día de semana", "CurrentWeek", ""),
-                new("📆", "Día semana (alias)", "WeekDays", ""),
-                new("📆", "Hoy", "Today", ""),
-                // Otros
                 new("🌙", "Fecha lunar", "LunarDate", ""),
-                new("🖥️", "Tasa refresco", "RefreshRate", "Hz"),
-            },
-            "Ventiladores" => new()
-            {
-                new("🌀", "Ventilador CPU", "CPUFanSpeed", "RPM"),
-                new("🌀", "Ventilador GPU", "GPUFanSpeed", "RPM"),
-                new("🌀", "Ventilador 1", "Fan1", "RPM"),
-                new("🌀", "Ventilador 2", "Fan2", "RPM"),
-                new("🌀", "Ventilador 3", "Fan3", "RPM"),
-                new("🌀", "Ventilador 4", "Fan4", "RPM"),
-                new("🌀", "Ventiladores (general)", "Fans", "RPM"),
-            },
-            "Disco" => new()
-            {
-                new("🌡️", "Temperatura disco", "DiskTemp", "°C"),
-                new("📊", "Uso de disco", "DiskUsage", "%"),
-                new("📊", "Uso disco (alias)", "DiskUtilizations", "%"),
-                new("💾", "Espacio libre", "DiskFree", "GB"),
+                new("🌡️", "Información clima", "WeatherInfo", ""),
+                new("💡", "Brillo pantalla", "ScreenBrightness", "%"),
+                new("🔋", "Modo energía", "PowerMode", ""),
             },
             "Red" => new()
             {
-                new("⬇️", "Velocidad descarga", "NetworkDown", "KB/s"),
-                new("⬆️", "Velocidad subida", "NetworkUp", "KB/s"),
-                new("📶", "Estado WiFi", "WifiStatus", ""),
+                new("⬇️", "Velocidad descarga", "DownNetSpeed", "KB/s"),
+                new("⬆️", "Velocidad subida", "UpNetSpeed", "KB/s"),
+                new("📶", "Estado WiFi", "WifiState", ""),
                 new("📶", "Nombre WiFi", "WifiName", ""),
+                new("📶", "SSID WiFi conectado", "ConnectedWifiSSID", ""),
             },
-            "Clima" => new()
+            "Bluetooth" => new()
             {
-                new("🌡️", "Temperatura clima", "WeatherInfo", "°C"),
-                new("🌙", "Clima nocturno", "Nightweather", ""),
-                new("☀️", "Clima máxima", "Heightweather", ""),
-                new("🌤️", "Clima mínima", "Lowweather", ""),
-                new("🌦️", "Condición clima", "WeatherCondition", ""),
+                new("📱", "Estado Bluetooth", "BleState", ""),
+                new("📱", "Dispositivos BT", "ConnectedBleSSIDS", ""),
             },
-            "Etiquetas" => new()
+            "Audio" => new()
             {
-                new("🏷️", "Etiqueta CPU", "CPU", ""),
-                new("🏷️", "Etiqueta GPU", "GPU", ""),
-                new("🏷️", "Etiqueta RAM", "RAM", ""),
-                new("🏷️", "Etiqueta ROM", "ROM", ""),
-                new("🏷️", "Etiqueta USAGE", "USAGE", ""),
-                new("🏷️", "Etiqueta DAMM", "DAMM", ""),
-                new("🐱", "Kitten (decorativo)", "Kitten", ""),
-                new("📝", "Texto estático", "Static", ""),
+                new("🔇", "Silenciado", "IsMute", ""),
+                new("🔊", "Volumen", "Volume", "%"),
             },
-            "Barras" => new()
+            "Hardware" => new()
             {
-                new("▰", "[BAR] CPU", "CpuUsage", "%", WidgetKind.BorderLine),
-                new("▰", "[BAR] GPU", "GpuUsage", "%", WidgetKind.BorderLine),
-                new("▰", "[BAR] RAM", "MemoryUsage", "%", WidgetKind.BorderLine),
-                new("▱", "[BACK] Fondo", "Static", "", WidgetKind.DefaultLine),
-                new("▤", "[GRID] CPU", "CpuUsage", "%", WidgetKind.GridLine),
+                new("🔋", "Nivel batería", "BatteryLevel", "%"),
+                new("⌨️", "Bloq Mayús", "CapLockPressed", ""),
+                new("🔢", "Bloq Num", "NumLockPressed", ""),
+                new("📝", "Recordatorios", "MemoReminder", ""),
+                new("🔔", "Notificaciones", "NotificationMessages", ""),
             },
             _ => new()
         };
@@ -942,6 +876,7 @@ public partial class ThemeEditorViewModel : ObservableObject
             BackgroundImage = null;
             VideoSource = null;
             GifSourcePath = null;
+            OriginalVideoPath = null;
             IsVideoBackground = false;
             IsGifBackground = false;
             
@@ -953,6 +888,16 @@ public partial class ThemeEditorViewModel : ObservableObject
                 // Convert video to GIF using FFmpeg
                 try
                 {
+                    // Notificar al usuario que la conversión está en proceso
+                    MessageBox.Show(
+                        "⏳ Convirtiendo video a GIF...\n\n" +
+                        "Este proceso puede tardar 10-60 segundos.\n" +
+                        "El cursor cambiará a reloj de arena.\n\n" +
+                        "Pulsa OK y espera a que termine.",
+                        "Conversión en Proceso",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    
                     System.Windows.Input.Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
                     
                     var animService = new Services.AnimationService();
@@ -966,7 +911,8 @@ public partial class ThemeEditorViewModel : ObservableObject
                     {
                         IsGifBackground = true;
                         GifSourcePath = gifPath;
-                        System.Diagnostics.Debug.WriteLine($"[VIDEO→GIF] Converted: {gifPath}");
+                        OriginalVideoPath = dialog.FileName; // Guardar ruta MP4 original para usar en tema final
+                        System.Diagnostics.Debug.WriteLine($"[VIDEO→GIF] Converted: {gifPath}, Original: {dialog.FileName}");
                     }
                     else
                     {
@@ -1022,6 +968,7 @@ public partial class ThemeEditorViewModel : ObservableObject
         BackgroundPath = "";
         VideoSource = null;
         GifSourcePath = null;
+        OriginalVideoPath = null;
         IsVideoBackground = false;
         IsGifBackground = false;
         
@@ -1204,6 +1151,206 @@ public partial class ThemeEditorViewModel : ObservableObject
             ordered[i].Y = minY + (i * step);
     }
     
+    [RelayCommand]
+    private async Task InstallToSoeyi()
+    {
+        await InstallToTarget("SOEYI");
+    }
+
+    [RelayCommand]
+    private async Task InstallToMarsGaming()
+    {
+        await InstallToTarget("MarsGaming");
+    }
+
+    private async Task InstallToTarget(string target)
+    {
+        try
+        {
+            // 1. Ask for Name
+            var inputDialog = new SnakeMarsTheme.Views.InputNameWindow(ThemeName ?? "NuevoTema");
+            if (inputDialog.ShowDialog() != true) return;
+            
+            var installName = inputDialog.ThemeName;
+            
+            // 2. Build Data (UI Thread)
+            // Determine ThemeType based on background type
+            int themeType = 1; // Default to Type 1 (static with Setting.txt)
+            string backgroundPath = BackgroundPath;
+            
+            // If user selected a GIF or video, it's Type 0 (DIY)
+            if (IsGifBackground && !string.IsNullOrEmpty(GifSourcePath))
+            {
+                themeType = 0; // Type 0: GIF/Video in DIY format, NO Setting.txt
+                
+                // Si hay video original (MP4), usar esa ruta para calidad completa
+                // El GIF convertido solo se usa para preview en la app
+                if (!string.IsNullOrEmpty(OriginalVideoPath) && System.IO.File.Exists(OriginalVideoPath))
+                {
+                    backgroundPath = OriginalVideoPath; // MP4 directo → BackgroundVideoFile
+                    System.Diagnostics.Debug.WriteLine($"[THEME] Using original video: {OriginalVideoPath}");
+                }
+                else
+                {
+                    backgroundPath = GifSourcePath; // GIF real → DisplayImages
+                    System.Diagnostics.Debug.WriteLine($"[THEME] Using GIF: {GifSourcePath}");
+                }
+            }
+            
+            var request = new ThemeSaveRequest
+            {
+                ThemeName = installName,
+                Width = ThemeWidth,
+                Height = ThemeHeight,
+                ThemeType = themeType,
+                BackgroundPath = backgroundPath,
+                Widgets = PlacedWidgets.Select(w => new WidgetInfo 
+                {
+                    Name = w.Name,
+                    Type = w.DataType,
+                    Unit = w.Unit,
+                    X = w.X,
+                    Y = w.Y,
+                    FontSize = w.FontSize,
+                    Font = w.FontFamily,
+                    Color = w.Color,
+                    WidgetType = w.Kind == WidgetKind.Text ? SnakeMarsTheme.Services.WidgetType.Text :
+                                 w.Kind == WidgetKind.BorderLine ? SnakeMarsTheme.Services.WidgetType.BorderLine :
+                                 w.Kind == WidgetKind.DefaultLine ? SnakeMarsTheme.Services.WidgetType.DefaultLine :
+                                 SnakeMarsTheme.Services.WidgetType.GridLine,
+                    BarWidth = w.BarWidth,
+                    BarHeight = w.BarHeight,
+                    MaxNum = w.MaxNum,
+                    CornerRadius = w.CornerRadius,
+                    Fill = w.Fill,
+                    BackColor = w.BackColor
+                }).ToList()
+            };
+            
+            // 3. Execution (Background Thread)
+            // Show busy status? (TODO)
+            
+            await Task.Run(async () => 
+            {
+                string? tempPath = null;
+                try
+                {
+                    tempPath = Path.Combine(Path.GetTempPath(), "SnakeMarsTheme_Install_" + Guid.NewGuid());
+                    Directory.CreateDirectory(tempPath);
+                    
+                    var themeFolder = Path.Combine(tempPath, request.ThemeName);
+                    Directory.CreateDirectory(themeFolder);
+
+                    // Save Assets
+                    _themeCreatorService.SaveThemeToPath(request, themeFolder, null);
+                    
+                    // NUEVO: Guardar copia local en userdata (para aparecer en "Temas Locales")
+                    try
+                    {
+                        var userResourcesPath = Services.PathService.UserResourcesPath;
+                        var localProgramme = Path.Combine(userResourcesPath, "Programme", request.ThemeName);
+                        var localScheme = Path.Combine(userResourcesPath, "ThemeScheme");
+                        
+                        // Crear carpeta ThemeScheme si no existe
+                        if (!Directory.Exists(localScheme))
+                            Directory.CreateDirectory(localScheme);
+                        
+                        // Copiar carpeta del tema a Programme local
+                        if (Directory.Exists(localProgramme))
+                            Directory.Delete(localProgramme, true);
+                        CopyDirectoryRecursive(themeFolder, localProgramme);
+                        
+                        // Copiar JSON al ThemeScheme local
+                        var jsonSource = Path.Combine(themeFolder, $"{request.ThemeName}.json");
+                        if (File.Exists(jsonSource))
+                        {
+                            File.Copy(jsonSource, Path.Combine(localScheme, $"{request.ThemeName}.json"), true);
+                        }
+                    }
+                    catch (Exception exLocal)
+                    {
+                        // Si falla el guardado local, continuar con la instalación (no crítico)
+                        System.Diagnostics.Debug.WriteLine($"[LOCAL SAVE] Error: {exLocal.Message}");
+                    }
+                    
+                    // Install
+                    InstallResult result;
+                    if (target == "SOEYI")
+                    {
+                        result = _installationService.InstallToSOEYI(tempPath);
+                    }
+                    else
+                    {
+                        result = _installationService.InstallToMarsGaming(tempPath);
+                    }
+
+                    // 4. Result (Back to UI Thread)
+                    Application.Current.Dispatcher.Invoke(() => 
+                    {
+                        if (result.Success)
+                        {
+                            var msg = result.Message + "\n\n¿Quieres reiniciar la aplicación ahora para ver los cambios?";
+                            var resp = MessageBox.Show(msg, "Instalación Exitosa", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                            
+                            if (resp == MessageBoxResult.Yes)
+                            {
+                                HandleRestart(target);
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show(result.Error, "Error de Instalación", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    });
+                }
+                finally
+                {
+                    // 5. Cleanup
+                    if (tempPath != null && Directory.Exists(tempPath))
+                    {
+                        try { Directory.Delete(tempPath, true); } catch {}
+                    }
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+             MessageBox.Show($"Error inesperado: {ex.Message}", "Error Crítico", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private async void HandleRestart(string target)
+    {
+         bool restarted = false;
+         if (target == "SOEYI") restarted = await _installationService.RestartSOEYIAsync();
+         else restarted = await _installationService.RestartMarsGamingAsync();
+         
+         if (!restarted)
+         {
+             MessageBox.Show("No se pudo reiniciar automáticamente. Por favor, hazlo manualmente.", "Info", MessageBoxButton.OK, MessageBoxImage.Warning);
+         }
+    }
+    
+    /// <summary>
+    /// Helper: Copia una carpeta recursivamente (para guardar temas locales)
+    /// </summary>
+    private static void CopyDirectoryRecursive(string sourceDir, string destDir)
+    {
+        Directory.CreateDirectory(destDir);
+        
+        foreach (var file in Directory.GetFiles(sourceDir))
+        {
+            var destFile = Path.Combine(destDir, Path.GetFileName(file));
+            File.Copy(file, destFile, true);
+        }
+        
+        foreach (var dir in Directory.GetDirectories(sourceDir))
+        {
+            var destSubDir = Path.Combine(destDir, Path.GetFileName(dir));
+            CopyDirectoryRecursive(dir, destSubDir);
+        }
+    }
+
     [RelayCommand]
     private void SaveTheme()
     {

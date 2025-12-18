@@ -28,16 +28,33 @@ public class ThemeCreatorService
     }
     
     /// <summary>
-    /// Save a complete theme with all required files.
+    /// Save a complete theme with all required files to the default resources/Programme folder.
     /// </summary>
     public ThemeSaveResult SaveTheme(ThemeSaveRequest request)
     {
+        var programmeFolder = Path.Combine(_programmePath, request.ThemeName);
+        var jsonPath = Path.Combine(_themeSchemePath, $"{request.ThemeName}.json");
+        
+        return SaveThemeToPath(request, programmeFolder, jsonPath);
+    }
+
+    /// <summary>
+    /// Save theme to a specific folder path (used for installation/export).
+    /// </summary>
+    public ThemeSaveResult SaveThemeToPath(ThemeSaveRequest request, string targetFolder, string? targetJsonPath = null)
+    {
         try
         {
-            // 1. Create Programme folder
-            var programmeFolder = Path.Combine(_programmePath, request.ThemeName);
-            if (!Directory.Exists(programmeFolder))
-                Directory.CreateDirectory(programmeFolder);
+            // 1. Create Target folder
+            if (!Directory.Exists(targetFolder))
+                Directory.CreateDirectory(targetFolder);
+                
+            // IMPORTANT: SOEYI/Mars Gaming expects assets inside a 'source' subfolder!
+            // BUT it also often needs copies in the root for the menu system.
+            // We will DUPLICATE assets to ensure maximum compatibility (Protocol Omega Robustness).
+            var sourceFolder = Path.Combine(targetFolder, "source");
+            if (!Directory.Exists(sourceFolder))
+                Directory.CreateDirectory(sourceFolder);
             
             // 2. Generate back.png or frame sequence (1.png, 2.png, ...)
             if (request.FramePaths != null && request.FramePaths.Count > 0)
@@ -48,57 +65,75 @@ public class ThemeCreatorService
                     var framePath = request.FramePaths[i];
                     if (File.Exists(framePath))
                     {
-                        var destPath = Path.Combine(programmeFolder, $"{i + 1}.png");
-                        File.Copy(framePath, destPath, overwrite: true);
+                        var fileName = $"{i + 1}.png";
+                        File.Copy(framePath, Path.Combine(sourceFolder, fileName), overwrite: true);
+                        File.Copy(framePath, Path.Combine(targetFolder, fileName), overwrite: true); // Copy to root too
                     }
                 }
             }
-            else
+            else if (request.ThemeType == 0 && !string.IsNullOrEmpty(request.BackgroundPath))
             {
-                // Static theme: generate back.png
-                var backPath = Path.Combine(programmeFolder, "back.png");
+                // Type 0 (DIY): Copy background media to Programme folder
+                // Soportamos: GIF, PNG, JPG (DisplayImages) y MP4, AVI, WEBM, MOV (BackgroundVideoFile)
+                var bgExt = Path.GetExtension(request.BackgroundPath).ToLowerInvariant();
+                var supportedExts = new[] { ".gif", ".png", ".jpg", ".jpeg", ".mp4", ".avi", ".webm", ".mov" };
+                if (supportedExts.Contains(bgExt) && File.Exists(request.BackgroundPath))
+                {
+                    var fileName = Path.GetFileName(request.BackgroundPath);
+                    File.Copy(request.BackgroundPath, Path.Combine(sourceFolder, fileName), overwrite: true);
+                    File.Copy(request.BackgroundPath, Path.Combine(targetFolder, fileName), overwrite: true);
+                }
+            }
+            else if (request.ThemeType != 0) // Skip back.png generation for Type 0
+            {
+                // Type 1 (Static theme): generate back.png
                 using (var backBitmap = CreateBackgroundBitmap(request))
                 {
-                    backBitmap.Save(backPath, ImageFormat.Png);
+                    backBitmap.Save(Path.Combine(sourceFolder, "back.png"), ImageFormat.Png);
+                    backBitmap.Save(Path.Combine(targetFolder, "back.png"), ImageFormat.Png); // Copy to root too
                 }
             }
             
             // 3. Generate demo.png (background + widgets)
-            var demoPath = Path.Combine(programmeFolder, "demo.png");
             using (var demoBitmap = CreateDemoBitmap(request))
             {
-                demoBitmap.Save(demoPath, ImageFormat.Png);
+                demoBitmap.Save(Path.Combine(sourceFolder, "demo.png"), ImageFormat.Png);
+                demoBitmap.Save(Path.Combine(targetFolder, "demo.png"), ImageFormat.Png); // Copy to root too
             }
             
             // 4. Generate Setting.txt (if type 1)
+            // Docs say Setting.txt is usually in Root, but some themes have it in source. We put it in both.
             if (request.ThemeType == 1)
             {
-                var settingPath = Path.Combine(programmeFolder, "Setting.txt");
                 var settingContent = GenerateSettingTxt(request);
-                File.WriteAllText(settingPath, settingContent, Encoding.UTF8);
+                File.WriteAllText(Path.Combine(sourceFolder, "Setting.txt"), settingContent, Encoding.UTF8);
+                File.WriteAllText(Path.Combine(targetFolder, "Setting.txt"), settingContent, Encoding.UTF8);
             }
             
-            // 5. Generate JSON in ThemeScheme
-            var jsonPath = Path.Combine(_themeSchemePath, $"{request.ThemeName}.json");
-            var jsonContent = GenerateThemeJson(request);
-            File.WriteAllText(jsonPath, jsonContent, Encoding.UTF8);
+            // 5. Generate JSON 
+            // JSON is strictly required in the installation root for the installer to pick it up, 
+            // or for the ThemeScheme logic. 
+            // InstallationService expects it at `Path.Combine(themeFolder, $"{themeName}.json")` (Root)
             
-            int frameCount = request.FramePaths?.Count ?? 0;
-            string filesGenerated = frameCount > 0
-                ? $"• Programme/{request.ThemeName}/ ({frameCount} frames: 1.png ... {frameCount}.png)\n"
-                : $"• Programme/{request.ThemeName}/back.png\n";
+            string jsonFinalPath = targetJsonPath;
+            if (string.IsNullOrEmpty(jsonFinalPath))
+            {
+                jsonFinalPath = Path.Combine(targetFolder, $"{request.ThemeName}.json");
+            }
+
+            var jsonContent = GenerateThemeJson(request);
+            // Ensure directory for JSON exists
+            var jsonDir = Path.GetDirectoryName(jsonFinalPath);
+            if (jsonDir != null && !Directory.Exists(jsonDir)) Directory.CreateDirectory(jsonDir);
+            
+            File.WriteAllText(jsonFinalPath, jsonContent, Encoding.UTF8);
             
             return new ThemeSaveResult
             {
                 Success = true,
-                OutputFolder = programmeFolder,
-                JsonPath = jsonPath,
-                Message = $"Tema '{request.ThemeName}' creado exitosamente!\n\n" +
-                          $"Archivos generados:\n" +
-                          filesGenerated +
-                          $"• Programme/{request.ThemeName}/demo.png\n" +
-                          (request.ThemeType == 1 ? $"• Programme/{request.ThemeName}/Setting.txt\n" : "") +
-                          $"• ThemeScheme/{request.ThemeName}.json"
+                OutputFolder = targetFolder,
+                JsonPath = jsonFinalPath,
+                Message = "Theme generated successfully at " + targetFolder
             };
         }
         catch (Exception ex)
@@ -238,9 +273,9 @@ public class ThemeCreatorService
             {
                 if (w.WidgetType == WidgetType.Text)
                 {
-                    // Map generic widget type to Mars TextType
-                    // Example: "data@CPUTemp" -> "CPUTemp"
-                    string textType = w.Type ?? "Static";
+                    // Use official Mars Gaming TextType from widget.Type
+                    // This comes directly from the 32 validated widgets
+                    string textType = w.Type ?? "CPUTemp"; // Default fallback
                     
                     displayTexts.Add(new
                     {
@@ -248,14 +283,15 @@ public class ThemeCreatorService
                         Left = (double)w.X,
                         Top = (double)w.Y,
                         ZIndex = zIndex++,
-                        TextType = textType, // Specific key for Mars app
+                        TextType = textType,
                         Text = string.IsNullOrEmpty(w.Unit) ? w.Name : $"00{w.Unit}",
-                        Color = w.Color, // #RRGGBB
-                        FontName = string.IsNullOrEmpty(w.Font) ? "Microsoft YaHei" : w.Font,
+                        Color = "255, 255, 255", // Mars Gaming requires RGB format
+                        FontName = string.IsNullOrEmpty(w.Font) ? "Segoe UI" : w.Font,
                         FontSize = (double)w.FontSize,
                         Bold = true,
-                        Align = 0,
-                        Data = w.Type
+                        Italic = false,  // Required by Mars Gaming
+                        Underline = false,  // Required by Mars Gaming
+                        TitleVisibility = false  // Required by Mars Gaming
                     });
                 }
                 // Note: Mars Gaming JSON mostly supports Text widgets effectively in DIY mode
@@ -263,21 +299,55 @@ public class ThemeCreatorService
             }
         }
 
+        // For Type 0 (DIY), handle background based on file type
+        var displayImages = new List<object>();
+        string? backgroundVideoFile = null;
+        
+        if (request.ThemeType == 0 && !string.IsNullOrEmpty(request.BackgroundPath))
+        {
+            var ext = Path.GetExtension(request.BackgroundPath).ToLowerInvariant();
+            string fileName = Path.GetFileName(request.BackgroundPath);
+            string placeholderPath = $"{{PROGRAMME_PATH}}\\{request.ThemeName}\\{fileName}";
+            
+            if (ext == ".mp4" || ext == ".avi" || ext == ".webm" || ext == ".mov")
+            {
+                // MP4/Video: usar BackgroundVideoFile (NO DisplayImages)
+                // Mars Gaming reproduce videos directamente desde este campo
+                backgroundVideoFile = placeholderPath;
+            }
+            else if (ext == ".gif" || ext == ".png" || ext == ".jpg" || ext == ".jpeg")
+            {
+                // GIF/PNG/JPG: usar DisplayImages
+                displayImages.Add(new
+                {
+                    Left = 0.0,
+                    Top = 0.0,
+                    ZIndex = 0,
+                    ImageFileName = (string?)null,
+                    Image = placeholderPath,
+                    Width = (double)request.Width,
+                    Height = (double)request.Height
+                });
+            }
+        }
+
         var theme = new
         {
             Type = request.ThemeType,
             Name = request.ThemeName,
-            Width = (double)request.Width,
-            Height = (double)request.Height,
+            // CRITICAL: Mars Gaming Type 0 always uses Width:320 Height:240
+            // regardless of actual screen resolution
+            Width = request.ThemeType == 0 ? 320.0 : (double)request.Width,
+            Height = request.ThemeType == 0 ? 240.0 : (double)request.Height,
             FillMode = 0,
             CropArea = "0, 0, 0, 0",
             ThumbnailImageData = (string?)null,
             DisplayDirection = 0,
             FontDirection = 0,
             BackgroundImage = (string?)null,
-            BackgroundVideoFile = (string?)null,
+            BackgroundVideoFile = backgroundVideoFile,
             DisplayTexts = displayTexts,
-            DisplayImages = Array.Empty<object>()
+            DisplayImages = displayImages
         };
         
         return JsonSerializer.Serialize(theme, new JsonSerializerOptions 

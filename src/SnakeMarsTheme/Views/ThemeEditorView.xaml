@@ -539,6 +539,22 @@
                                         ToolTip="Exportar como .smtheme"/>
 
                                 <!-- Main Save -->
+                                <Button Content="🖥️ INSTALAR SOEYI" 
+                                        Command="{Binding InstallToSoeyiCommand}"
+                                        Style="{StaticResource PrimaryButton}"
+                                        Background="#00CED1"
+                                        Foreground="Black"
+                                        Margin="20,0,0,0" Padding="15,10" FontSize="11" Height="34" FontWeight="Bold"
+                                        ToolTip="Instalar directamente en SOEYI"/>
+
+                                <Button Content="🔴 INSTALAR MARS" 
+                                        Command="{Binding InstallToMarsGamingCommand}"
+                                        Style="{StaticResource PrimaryButton}"
+                                        Background="#FF4444"
+                                        Foreground="White"
+                                        Margin="10,0,0,0" Padding="15,10" FontSize="11" Height="34" FontWeight="Bold"
+                                        ToolTip="Instalar directamente en Mars Gaming"/>
+
                                 <Button Content="💾 GUARDAR" 
                                         Style="{StaticResource SuccessButton}"
                                         Command="{Binding SaveThemeCommand}"

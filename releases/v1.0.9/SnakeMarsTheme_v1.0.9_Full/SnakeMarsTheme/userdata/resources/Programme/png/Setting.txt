@@ -1,0 +1,8 @@
+﻿name:png
+width:360
+height:960
+back.png:x@0,y@0,z@0
+Text:x@20,y@50,z@1,FontSize@24,FontFamily@#Impact,Foreground@#FFFFFF,data@CPUTemp,unit@°C
+Text:x@30,y@90,z@2,FontSize@24,FontFamily@#Impact,Foreground@#FFFFFF,data@CpuUsage,unit@%
+Text:x@40,y@130,z@3,FontSize@24,FontFamily@#Impact,Foreground@#FFFFFF,data@GPUTemp,unit@°C
+Text:x@200,y@860,z@4,FontSize@72,FontFamily@#Impact,Foreground@#00FF00,data@GpuUsage,unit@%

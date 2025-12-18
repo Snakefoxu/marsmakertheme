@@ -168,8 +168,8 @@ public static class ThemeTemplateFactory
                 
                 // Network Section
                 new() { Name = "═══ NET ═══", DataType = "Static", X = 90, Y = 330, FontSize = 16, Color = "#1E90FF" },
-                new() { Name = "↓", DataType = "NetworkDown", Unit = "KB/s", X = 30, Y = 360, FontSize = 24, Color = "#00FF00" },
-                new() { Name = "↑", DataType = "NetworkUp", Unit = "KB/s", X = 180, Y = 360, FontSize = 24, Color = "#FF4444" },
+                new() { Name = "↓", DataType = "DownNetSpeed", Unit = "KB/s", X = 30, Y = 360, FontSize = 24, Color = "#00FF00" },
+                new() { Name = "↑", DataType = "UpNetSpeed", Unit = "KB/s", X = 180, Y = 360, FontSize = 24, Color = "#FF4444" },
                 
                 // Disk Section
                 new() { Name = "═══ DISK ═══", DataType = "Static", X = 85, Y = 400, FontSize = 16, Color = "#32CD32" },
