@@ -1,6 +1,16 @@
 # ============================================================================
 # EXCLUSIÓN ESTRICTA DE TEMAS Y RECURSOS PESADOS
 # ============================================================================
+
+# ============ RUTAS LOCALES / NUGET ============
+**/obj/**/*.json
+**/obj/**/*.dgspec.json
+**/obj/**/*.assets.json
+**/obj/**/project.assets.json
+*.nuget.dgspec.json
+*.sourcelink.json
+
+# ============ TEMAS ============
 resources/themes/
 resources/extracted_themes/
 resources/Themes_PHOTO/
@@ -9,6 +19,7 @@ resources/Themes_PYTHON/
 resources/Themes_SMTHEME/
 resources/SMTHEME EXTRAIDO/
 resources/PHOTOS EXTRAIDO/
+
 resources/FFmpeg/
 resources/Programme/
 resources/ThemeScheme/
