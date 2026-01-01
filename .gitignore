@@ -10,6 +10,10 @@
 *.nuget.dgspec.json
 *.sourcelink.json
 
+# ============ RELEASES (distribuidas via GitHub Releases) ============
+releases/
+
+
 # ============ TEMAS ============
 resources/themes/
 resources/extracted_themes/
