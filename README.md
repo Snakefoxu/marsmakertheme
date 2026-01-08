@@ -1,106 +1,108 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Snakefoxu/marsmakertheme/main/assets/branding/github_banner.png" alt="SnakeMarsTheme - Gestor de Temas para Pantallas LCD Mars Gaming y SOEYI" height="350">
+  <img src="https://raw.githubusercontent.com/Snakefoxu/marsmakertheme/main/assets/branding/github_banner.png" alt="SnakeMarsTheme - Theme Manager for Mars Gaming and SOEYI LCD Screens" height="350">
 </p>
 
-# SnakeMarsTheme - El Gestor Definitivo para Mars Gaming & SOEYI
+# SnakeMarsTheme - The Ultimate Manager for Mars Gaming & SOEYI
 
-> **La Suite Inteligente para Pantallas Mars Gaming VMAX, SOEYI y Displays IPS Turzx**
-> *La única herramienta todo-en-uno para crear, convertir y personalizar temas para la pantalla LCD de tu caja de PC.*
+🌐 **Language / Idioma:** **English** | [Español](README_ES.md)
 
-[![Versión](https://img.shields.io/badge/versión-4.2.1-blue)](https://github.com/Snakefoxu/marsmakertheme/releases)
-[![Plataforma](https://img.shields.io/badge/plataforma-Windows-lightgrey)]()
+> **The Smart Suite for Mars Gaming VMAX, SOEYI and Turzx IPS Displays**
+> *The only all-in-one tool to create, convert, and customize themes for your PC case's LCD screen.*
+
+[![Version](https://img.shields.io/badge/version-4.2.1-blue)](https://github.com/Snakefoxu/marsmakertheme/releases)
+[![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)]()
 [![Framework](https://img.shields.io/badge/.NET-8.0-purple)]()
-[![Temas en HuggingFace](https://img.shields.io/badge/HuggingFace-462_temas-orange)](https://huggingface.co/datasets/snakefoxu/soeyi-themes)
+[![HuggingFace Themes](https://img.shields.io/badge/HuggingFace-462_themes-orange)](https://huggingface.co/datasets/snakefoxu/soeyi-themes)
 
 ---
 
-## 📖 [VER MANUAL DE USUARIO (Instrucciones Completas)](USER_MANUAL.md)
+## 📖 [VIEW USER MANUAL (Complete Instructions)](USER_MANUAL.md)
 
 ---
 
-## 🔥 Características Principales (v4.2.1)
+## 🔥 Main Features (v4.2.1)
 
-### 🎨 Editor Visual de Temas (WYSIWYG)
-- **Interfaz Drag & Drop**: Diseña temas personalizados fácilmente para pantallas USB IPS de 3.5" o 5".
-- **32 Widgets Oficiales Mars Gaming**: Validados al 100% en hardware real
+### 🎨 Visual Theme Editor (WYSIWYG)
+- **Drag & Drop Interface**: Easily design custom themes for 3.5" or 5" USB IPS screens.
+- **32 Official Mars Gaming Widgets**: 100% validated on real hardware
     - **CPU**: CPUTemp, CpuUsage, CpuFrequency, CpuVoltage, CpuTEC
     - **GPU**: GPUTemp, GpuUsage, GpuFrequency, GPUMemoryFrequency, GpuTEC
-    - **Sistema**: CurrentTime, CurrentDate, LunarDate, ScreenBrightness, PowerMode, WeatherInfo
-    - **Red**: UpNetSpeed, DownNetSpeed, WifiState, WifiName, ConnectedWifiSSID
+    - **System**: CurrentTime, CurrentDate, LunarDate, ScreenBrightness, PowerMode, WeatherInfo
+    - **Network**: UpNetSpeed, DownNetSpeed, WifiState, WifiName, ConnectedWifiSSID
     - **Hardware**: BatteryLevel, CapLockPressed, NumLockPressed, MemoryUsage, DiskTemp
-    - **Bluetooth/Audio**: BleState, IsMute, Volume, y más
-- **Control Total de Medios**: 
-    - **Rotación**: Rota fondos 90°/180°/270° al instante.
-    - **Formatos**: Soporte para GIF (Type 0 validado), Imagen estática, Video (.mp4).
-- **Deshacer/Rehacer**: Sistema robusto para editar sin miedo.
-- **Instalación Directa**: Botones para instalar en Mars Gaming/SOEYI con auto-elevación.
+    - **Bluetooth/Audio**: BleState, IsMute, Volume, and more
+- **Full Media Control**: 
+    - **Rotation**: Rotate backgrounds 90°/180°/270° instantly.
+    - **Formats**: Support for GIF (Type 0 validated), Static image, Video (.mp4).
+- **Undo/Redo**: Robust system for fearless editing.
+- **Direct Installation**: Buttons to install on Mars Gaming/SOEYI with auto-elevation.
 
-### 🧙‍♂️ Asistentes Inteligentes
-- **Wizard de Inicio**: Crea temas base en 3 pasos (Pantalla -> Orientación -> Estilo).
-- **Importador Inteligente**: Detecta automáticamente si importas un archivo `.smtheme` o `.photo` y lo coloca donde debe ir.
+### 🧙‍♂️ Smart Wizards
+- **Startup Wizard**: Create base themes in 3 steps (Screen -> Orientation -> Style).
+- **Smart Importer**: Auto-detects if you're importing a `.smtheme` or `.photo` file and places it correctly.
 
-### 📥 Librería de Temas en la Nube
-- **462+ Temas Gratuitos**: Accede a una base de datos masiva de temas de la comunidad.
-- **Vistas Previas Reales**: Sistema de thumbnails optimizado (320px) para navegar rápido por el catálogo.
-- **Filtros Avanzados**: Encuentra temas por resolución (Horizontal, Vertical, Cuadrada/AIO).
+### 📥 Cloud Theme Library
+- **462+ Free Themes**: Access a massive community theme database.
+- **Real Previews**: Optimized thumbnail system (320px) for fast catalog browsing.
+- **Advanced Filters**: Find themes by resolution (Horizontal, Vertical, Square/AIO).
 
-### 🛠️ Herramientas de Animación
-- **GIF a Tema**: Convierte instantáneamente GIFs genéricos en temas de hardware compatibles.
-- **Video a Frames**: Extrae frames de alta calidad de MP4/AVI para una reproducción fluida.
+### 🛠️ Animation Tools
+- **GIF to Theme**: Instantly convert generic GIFs into compatible hardware themes.
+- **Video to Frames**: Extract high-quality frames from MP4/AVI for smooth playback.
 
 ---
 
-## 🛠️ Instalación y Puesta en Marcha
+## 🛠️ Installation & Setup
 
-### Requisitos del Sistema
+### System Requirements
 - Windows 10 / 11
-- .NET 8.0 Runtime (necesario para ejecutar la aplicación)
+- .NET 8.0 Runtime (required to run the application)
 
-### Cómo Ejecutar
-1. Descarga la última versión desde [Releases](https://github.com/Snakefoxu/marsmakertheme/releases).
-2. Descomprime el archivo.
-3. Ejecuta `SnakeMarsTheme.exe`.
+### How to Run
+1. Download the latest version from [Releases](https://github.com/Snakefoxu/marsmakertheme/releases).
+2. Extract the archive.
+3. Run `SnakeMarsTheme.exe`.
 
 ---
 
-## 📂 Estructura del Repositorio Limpio
+## 📂 Clean Repository Structure
 
 ```
 SnakeMarsTheme/
 ├── src/
-│   ├── SnakeMarsTheme/       # Aplicación Principal (WPF .NET 8)
-│   └── ThemeExtractor/       # CLI para extraer temas TURZX
-├── resources/                 # Assets vitales (Temas, GIFs, Previews reducidos)
-├── releases/                  # Binarios compilados (Solo última versión)
-└── USER_MANUAL.md             # Guía de uso detallada
+│   ├── SnakeMarsTheme/       # Main Application (WPF .NET 8)
+│   └── ThemeExtractor/       # CLI to extract TURZX themes
+├── resources/                # Vital assets (Themes, GIFs, Reduced previews)
+├── releases/                 # Compiled binaries (Latest version only)
+└── USER_MANUAL.md            # Detailed usage guide
 ```
 
 ---
 
-## 📚 Documentación y Guías
+## 📚 Documentation & Guides
 
-| Documento | Descripción |
-|-----------|-------------|
-| [USER_MANUAL.md](USER_MANUAL.md) | **Instrucciones de uso** paso a paso |
-| [CHANGELOG.md](CHANGELOG.md) | Registro de cambios (v1.1.0 actual) |
-| [docs/investigacion/](docs/investigacion/) | Análisis técnico de formatos SOEYI/TURZX |
-
----
-
-## 🔑 Información Técnica para Enthusiastas
-
-- **Contraseña Archivos .photo**: `vmax2025` (Utilizada en temas encriptados originales)
-- **Repositorio de Temas**: [snakefoxu/soeyi-themes](https://huggingface.co/datasets/snakefoxu/soeyi-themes)
-- **17 Resoluciones Soportadas**: Soporte nativo para casi cualquier pantalla USB del mercado asiático/occidental.
+| Document | Description |
+|----------|-------------|
+| [USER_MANUAL.md](USER_MANUAL.md) | **Step-by-step usage instructions** |
+| [CHANGELOG.md](CHANGELOG.md) | Changelog (current v1.1.0) |
+| [docs/investigacion/](docs/investigacion/) | Technical analysis of SOEYI/TURZX formats |
 
 ---
 
-## 🤝 Créditos y Atribución
+## 🔑 Technical Information for Enthusiasts
 
-Desarrollado con ❤️ por **SnakeFoxu** para la comunidad de modding de PC.
-
-*Agradecimiento especial a las comunidades de SOEYI y TURZX por la investigación e inspiración.*
+- **Password for .photo Files**: `vmax2025` (Used in original encrypted themes)
+- **Theme Repository**: [snakefoxu/soeyi-themes](https://huggingface.co/datasets/snakefoxu/soeyi-themes)
+- **17 Supported Resolutions**: Native support for almost any USB screen from Asian/Western markets.
 
 ---
 
-**Licencia**: MIT - Código Abierto y Gratuito.
+## 🤝 Credits & Attribution
+
+Developed with ❤️ by **SnakeFoxu** for the PC modding community.
+
+*Special thanks to the SOEYI and TURZX communities for research and inspiration.*
+
+---
+
+**License**: MIT - Open Source and Free.
